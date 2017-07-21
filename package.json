@@ -1,0 +1,33 @@
+{
+  "name": "ipuzatkin-game",
+  "version": "1.0.0",
+  "description": "game-shooter",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run-script build && npm run-script start:server",
+    "build:server": "tsc --project ./tsconfig.server.json",
+    "build:client": "tsc --project ./tsconfig.client.json",
+    "build": "npm run-script build:server && npm run-script build:client",
+    "start:server": "cd bin/server/build && node main_server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puzatkin-ivan/ipuzatkin-game.git"
+  },
+  "author": "Ivan Puzatkin <puzatkin1998@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/puzatkin-ivan/ipuzatkin-game/issues"
+  },
+  "homepage": "https://github.com/puzatkin-ivan/ipuzatkin-game#readme",
+  "dependencies": {
+    "@types/websocket": "0.0.34",
+    "@types/ws": "^3.0.2",
+    "express": "^4.15.3",
+    "node-static": "^0.7.9",
+    "socket.io": "^2.0.3",
+    "typescript": "^2.4.1",
+    "websocket": "^1.0.24",
+    "ws": "^3.0.0"
+  }
+}

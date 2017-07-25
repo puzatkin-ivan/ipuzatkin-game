@@ -5,6 +5,6 @@
     "outFile": "./bin/client/build/bundle.js"
   },
   "files": [
-    "./src/client/main_client.ts"
+    "./src/main_client.ts"
   ]
 }

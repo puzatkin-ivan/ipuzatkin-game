@@ -3,9 +3,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "rootDir": "./src",
-    "outDir": "./bin/server/build"
+    "outDir": "./bin/src"
   },
   "files": [
-    "./src/server/main_server.ts"
+    "./src/main_server.ts"
   ]
 }

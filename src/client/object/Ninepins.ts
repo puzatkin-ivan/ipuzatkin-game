@@ -8,6 +8,6 @@ export class Ninepins {
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.fillRect(this._x, this._y, 200, 100);
+    context.fillRect(this._x, this._y, 200, 50);
   }
 }

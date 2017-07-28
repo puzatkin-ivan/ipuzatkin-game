@@ -1,16 +1,29 @@
 import {Direction} from "../direction";
-enum keyMap {
-  A = 65,
-  W = 87,
-  D = 68,
-  S = 83,
-}
+
+let keyMap = {
+  keyA: {
+    code: 65,
+    isPressed: false,
+  },
+  keyW: {
+    code: 87,
+    isPressed: false,
+  },
+  keyD: {
+    code: 68,
+    isPressed: false,
+  },
+  keyS: {
+    code: 83,
+    isPressed: false,
+  }
+};
 
 export class Shooter {
   public x: number;
   public y: number;
-  public static WIDTH = 50;
-  public static HEIGHT = 50;
+  public static WIDTH = 25;
+  public static HEIGHT = 25;
   private _directionX: Direction;
   private _directionY: Direction;
 
@@ -27,26 +40,40 @@ export class Shooter {
     this._directionY = direction;
   }
 
-  setDirection(key: any) {
-    const DELTA_MOVE = 5;
+  setDirection(KeyMap: any) {
+    const DELTA_MOVE = 15 * Math.random();
 
-    if (key === keyMap.D) {
-      this.x += DELTA_MOVE;
+    switch (KeyMap.key) {
+      case keyMap.keyA.code:
+        keyMap.keyA.isPressed = KeyMap.isPressed;
+      break;
+      case keyMap.keyW.code:
+        keyMap.keyW.isPressed = KeyMap.isPressed;
+      break;
+      case keyMap.keyD.code:
+        keyMap.keyD.isPressed = KeyMap.isPressed;
+      break;
+      case keyMap.keyS.code:
+        keyMap.keyS.isPressed = KeyMap.isPressed;
+      break;
     }
-    if (key == keyMap.A) {
+
+    if (keyMap.keyA.isPressed) {
       this.x -= DELTA_MOVE;
     }
-    if (key === keyMap.W) {
-      this.y -= 5;
+    if (keyMap.keyW.isPressed) {
+      this.y -= DELTA_MOVE;
     }
-    if (key === keyMap.S) {
-      this.y += 5;
+    if (keyMap.keyD.isPressed) {
+      this.x += DELTA_MOVE;
     }
+    if (keyMap.keyS.isPressed) {
+      this.y += DELTA_MOVE;
+    }
+
   }
 
   move(key: any ) {
     this.setDirection(key);
-    this._directionX = Direction.Close;
-    this._directionY = Direction.Close;
   }
 }

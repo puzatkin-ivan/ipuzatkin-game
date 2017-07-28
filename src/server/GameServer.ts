@@ -1,7 +1,7 @@
 import WebSocket = require("ws");
 import {Shooter} from "./object/Shooter";
 import {gamePhysics} from "./processes/gamePhysics";
-import {Ninepins} from "../client/object/Ninepins";
+import {Ninepins} from "./object/Ninepins";
 
 export namespace GameServer {
   export function initGameServer(socketSever: WebSocket.Server) {
@@ -18,9 +18,9 @@ export namespace GameServer {
       x: 122,
       y: 123,
     };
-
     const ninepins = [
       new Ninepins(600, 300),
+      new Ninepins(200, 300),
     ];
 
     socketSever.on('connection', (client: WebSocket) => {
@@ -36,9 +36,9 @@ export namespace GameServer {
       });
 
       client.on("message", (message: any) => {
-        players[shooter].move(JSON.parse(message));
-        gamePhysics(players[shooter], ninepins);
-        broadcast(JSON.stringify(players));
+          players[shooter].move(JSON.parse(message));
+          gamePhysics(players[shooter], ninepins);
+          broadcast(JSON.stringify(players));
       });
     });
   }

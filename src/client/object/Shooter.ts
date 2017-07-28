@@ -8,6 +8,7 @@ export class Shooter {
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.fillRect(this._x, this._y, 50, 50);
+    context.fillStyle = "#348eda";
+    context.fillRect(this._x, this._y, 25, 25);
   }
 }

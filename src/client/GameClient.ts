@@ -13,7 +13,10 @@ export namespace GameClient {
       canvas.height = GameField.HEIGHT_CANVAS;
 
       const sendKey = (key: KeyboardEvent, isPressed: boolean) => {
-        const keyMap = key.keyCode;
+        const keyMap = {
+          key: key.keyCode,
+          isPressed: isPressed,
+        };
 
         socket.send(JSON.stringify(keyMap))
       };
@@ -26,9 +29,11 @@ export namespace GameClient {
      socket.onmessage = (message: MessageEvent) => {
        const ShootersMap = JSON.parse(message.data);
        const ninepins = new Ninepins(600, 300);
+       const ninepins2 = new Ninepins(200, 300);
 
        GameField.draw(canvasContext);
        ninepins.draw(canvasContext);
+       ninepins2.draw(canvasContext);
 
        for (const id in ShootersMap) {
          const player = new Shooter(ShootersMap[id].x, ShootersMap[id].y);

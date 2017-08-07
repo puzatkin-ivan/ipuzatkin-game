@@ -2,7 +2,7 @@ import WebSocket = require("ws");
 import {Shooter} from "./object/Shooter";
 import {gamePhysics} from "./processes/gamePhysics";
 import {Block} from "./object/Block";
-import {GameContext} from "../GameContext";
+import {GameContext} from "./object/GameContext";
 
 export namespace GameServer {
   function broadcast(socketServer: WebSocket.Server, data: any) {
@@ -13,14 +13,7 @@ export namespace GameServer {
     });
   }
 
-  const blocks = [
-    new Block(GameContext.block.block1.x, GameContext.block.block1.y),
-    new Block(GameContext.block.block2.x, GameContext.block.block2.y),
-    new Block(GameContext.block.block3.x, GameContext.block.block3.y),
-    new Block(GameContext.block.block4.x, GameContext.block.block4.y),
-    new Block(GameContext.block.block5.x, GameContext.block.block5.y),
-    new Block(GameContext.block.block6.x, GameContext.block.block6.y),
-  ];
+  let gameContext: GameContext = new GameContext();
 
   function startGameServer(socketServer: WebSocket.Server) {
     let lastTimeFrame = Date.now();
@@ -29,13 +22,20 @@ export namespace GameServer {
       const deltaTime = currentTimeFrame - lastTimeFrame;
       lastTimeFrame = currentTimeFrame;
 
-      for (const shooter in GameContext.players) {
-        GameContext.players[shooter].moveBullet(deltaTime);
-        GameContext.players[shooter].move(deltaTime);
-        GameContext.players[shooter].collisionAndObject(blocks);
-        gamePhysics(GameContext.players[shooter], blocks);
+      for (const bullet of gameContext.bullets) {
+        bullet.move(deltaTime);
+        bullet.collision(gameContext);
+        if (bullet.isDead) {
+          gameContext.bullets.splice(gameContext.bullets.indexOf(bullet), 1);
+        }
       }
-      broadcast(socketServer, JSON.stringify(GameContext.players));
+
+      for (const shooter of  Object.keys(gameContext.players)) {
+        gameContext.players[shooter].move(deltaTime);
+        gameContext.players[shooter].fire(gameContext, shooter);
+        gamePhysics(gameContext, shooter);
+      }
+      broadcast(socketServer, JSON.stringify(gameContext));
     }, 1000/60);
   }
 
@@ -46,17 +46,17 @@ export namespace GameServer {
     socketServer.on('connection', (client: WebSocket) => {
       countShooter += 1;
       const shooter = "shooter" + countShooter;
-      GameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES.x, GameContext.INITIAL_COORDINATES.y);
+      gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES.x, GameContext.INITIAL_COORDINATES.y);
 
-      client.send(JSON.stringify(GameContext.players));
+      client.send(JSON.stringify(gameContext));
 
       client.on("close", () => {
-        delete GameContext.players[shooter];
-        broadcast(socketServer, JSON.stringify(GameContext.players));
+        delete gameContext.players[shooter];
+        broadcast(socketServer, JSON.stringify(gameContext));
       });
 
       client.on("message", (message: any) => {
-        GameContext.players[shooter].setDirection(JSON.parse(message));
+        gameContext.players[shooter].setDirection(JSON.parse(message));
       });
     });
   }

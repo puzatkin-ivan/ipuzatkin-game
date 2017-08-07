@@ -1,23 +1,16 @@
 import {GameField} from "./object/GameField";
+import {GameContext} from "./object/GameContext";
 import {Shooter} from "./object/Shooter";
 import {Block} from "./object/Block";
-import {GameContext} from "../GameContext";
+import {Bullet} from "./object/Bullet";
 
 export namespace GameClient {
   const canvas = <HTMLCanvasElement>document.getElementById("canvas");
   const canvasContext: CanvasRenderingContext2D = canvas.getContext("2d");
-  const blocks = [
-    new Block(GameContext.block.block1.x, GameContext.block.block1.y),
-    new Block(GameContext.block.block2.x, GameContext.block.block2.y),
-    new Block(GameContext.block.block3.x, GameContext.block.block3.y),
-    new Block(GameContext.block.block4.x, GameContext.block.block4.y),
-    new Block(GameContext.block.block5.x, GameContext.block.block5.y),
-    new Block(GameContext.block.block6.x, GameContext.block.block6.y),
-  ];
-
-  let ShootersMap = {};
 
   export function initGame(socket: WebSocket) {
+    let gameContext: GameContext = new GameContext();
+
     socket.onopen = () => {
       canvas.width = GameField.WIDTH_CANVAS;
       canvas.height = GameField.HEIGHT_CANVAS;
@@ -38,29 +31,34 @@ export namespace GameClient {
     };
 
     socket.onmessage = (message: MessageEvent) => {
-      ShootersMap = JSON.parse(message.data);
+      gameContext = JSON.parse(message.data)
     };
 
     socket.onclose = () => {
       alert("Sorry, Server Close")
     };
+
     setInterval(function () {
-      gameLoop(ShootersMap);
+      gameLoop(gameContext);
     }, 1000 / 60);
   }
 
-  const gameLoop = (ShootersMap) => {
-
+  const gameLoop = (gameContext: GameContext) => {
     GameField.draw(canvasContext);
-    for (const block of blocks) {
+    for (const item of Object.keys(gameContext.blocks)) {
+      const block = new Block(gameContext.blocks[item].x, gameContext.blocks[item].y);
       block.draw(canvasContext);
     }
 
-    for (const id in ShootersMap) {
-      const player = new Shooter(ShootersMap[id].x, ShootersMap[id].y, ShootersMap[id].health, ShootersMap[id].xBullet, ShootersMap[id].yBullet);
+    for (const shooter of Object.keys(gameContext.players)) {
+      const player = new Shooter(gameContext.players[shooter].x, gameContext.players[shooter].y, gameContext.players[shooter].health);
       player.draw(canvasContext);
       player.drawGun(canvasContext);
-      player.drawBullet(canvasContext);
+    }
+
+    for (const item of gameContext.bullets) {
+      const bullet = new Bullet(item.x, item.y);
+      bullet.draw(canvasContext);
     }
   }
 }

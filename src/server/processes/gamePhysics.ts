@@ -1,9 +1,10 @@
 import {Shooter} from "../object/Shooter";
 import {Block} from "../object/Block";
 import {GameField} from "../../client/object/GameField";
-export function gamePhysics(shooter: Shooter, BlocksMap) {
-  collisionBorderAndPlayer(shooter);
-  collisionBlockAndShooter(shooter, BlocksMap)//коллизии с объектами
+import {GameContext} from "../object/GameContext";
+export function gamePhysics(gameContext: GameContext, playerId: string) {
+  collisionBorderAndPlayer(gameContext.players[playerId]);
+  collisionBlockAndShooter(gameContext.players[playerId], gameContext.blocks);
 }
 
 function collisionBorderAndPlayer(shooter: Shooter){
@@ -18,23 +19,23 @@ function collisionBorderAndPlayer(shooter: Shooter){
 }
 
 function collisionBlockAndShooter(shooter: Shooter, BlocksMap) {
-  for (const block of BlocksMap) {
-    const intervalForY = shooter.y < block.y + Block.HEIGHT && shooter.y + Shooter.HEIGHT > block.y;
-    const intervalForX = shooter.x < block.x + Block.WIDTH && shooter.x + Shooter.WIDTH > block.x;
+  for (const block of Object.keys(BlocksMap)) {
+    const intervalForY = shooter.y < BlocksMap[block].y + Block.HEIGHT && shooter.y + Shooter.HEIGHT > BlocksMap[block].y;
+    const intervalForX = shooter.x < BlocksMap[block].x + Block.WIDTH && shooter.x + Shooter.WIDTH > BlocksMap[block].x;
 
 
     if (intervalForX) {
-      if (shooter.y + Shooter.HEIGHT > block.y && shooter.y + Shooter.HEIGHT < block.y + 0.3 * Block.HEIGHT) {
-        shooter.y = block.y - Shooter.HEIGHT;
-      } else if (shooter.y > block.y + 0.7 * Block.HEIGHT && shooter.y < block.y + Block.HEIGHT) {
-        shooter.y = block.y + Block.HEIGHT;
+      if (shooter.y + Shooter.HEIGHT > BlocksMap[block].y && shooter.y + Shooter.HEIGHT < BlocksMap[block].y + 0.3 * Block.HEIGHT) {
+        shooter.y = BlocksMap[block].y - Shooter.HEIGHT;
+      } else if (shooter.y > BlocksMap[block].y + 0.7 * Block.HEIGHT && shooter.y < BlocksMap[block].y + Block.HEIGHT) {
+        shooter.y = BlocksMap[block].y + Block.HEIGHT;
       }
     }
     if (intervalForY) {
-      if (shooter.x + Shooter.WIDTH >= block.x && shooter.x + Shooter.WIDTH <= block.x + 0.2 * Block.WIDTH) {
-        shooter.x = block.x - Shooter.WIDTH;
-      } else if (shooter.x >= block.x + 0.8 * Block.WIDTH && shooter.x <= block.x + Block.WIDTH) {
-        shooter.x = block.x + Block.WIDTH;
+      if (shooter.x + Shooter.WIDTH >= BlocksMap[block].x && shooter.x + Shooter.WIDTH <= BlocksMap[block].x + 0.2 * Block.WIDTH) {
+        shooter.x = BlocksMap[block].x - Shooter.WIDTH;
+      } else if (shooter.x >= BlocksMap[block].x + 0.8 * Block.WIDTH && shooter.x <= BlocksMap[block].x + Block.WIDTH) {
+        shooter.x = BlocksMap[block].x + Block.WIDTH;
       }
     }
   }

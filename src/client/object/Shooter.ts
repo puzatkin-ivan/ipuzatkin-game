@@ -2,18 +2,14 @@ export class Shooter {
  private _x: number;
  private _y: number;
  private _health: number;
- private _xBullet: number;
- private _yBullet: number;
  private _height = 25;
  private _width = 25;
  private _heightHP = 8;
 
-  constructor(x, y, health, xBullet, yBullet) {
+  constructor(x, y, health) {
     this._x = x;
     this._y = y;
     this._health = health;
-    this._xBullet = xBullet;
-    this._yBullet = yBullet;
   }
 
   draw(context: CanvasRenderingContext2D) {
@@ -36,11 +32,6 @@ export class Shooter {
 
   drawGun(context: CanvasRenderingContext2D) {
     context.fillStyle = "#000";
-    context.fillRect(this._x + this._width, this._y, 10, 10)
-  }
-
-  drawBullet(context: CanvasRenderingContext2D) {
-    context.fillStyle = "#2c30ff";
-    context.fillRect(this._xBullet, this._yBullet, 10, 10)
+    context.fillRect(this._x + this._width, this._y, 5, 10)
   }
 }

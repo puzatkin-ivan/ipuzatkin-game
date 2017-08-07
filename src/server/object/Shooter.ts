@@ -1,14 +1,10 @@
 import {Direction} from "../direction";
-import {GameField} from "../../client/object/GameField";
-import {Block} from "./Block";
-import {GameContext} from "../../GameContext";
+import {GameContext} from "./GameContext";
+import {Bullet} from "./Bullet";
 
 export class Shooter {
   public x: number;
   public y: number;
-  public xBullet: number;
-  public yBullet: number;
-  public numberBullet: number;
   public isShooting: boolean;
   public health: number;
   public static WIDTH = 25;
@@ -37,6 +33,7 @@ export class Shooter {
       isPressed: false,
     }
   };
+  private _lastFireTimeStamp = Date.now();
 
 
   constructor(x: number, y: number) {
@@ -44,9 +41,6 @@ export class Shooter {
     this.y = y;
     this.health = 100;
     this.isShooting = false;
-    this.numberBullet = 5;
-    this.xBullet = this.x + Shooter.WIDTH;
-    this.yBullet = this.y
   }
 
   setDirectionX(direction: Direction) {
@@ -72,7 +66,7 @@ export class Shooter {
         this.keyMap.keyS.isPressed = keyMap.isPressed;
       break;
       case this.keyMap.keySpace.code:
-        this.isShooting = true;
+        this.isShooting = keyMap.isPressed;
       break;
     }
   }
@@ -93,102 +87,16 @@ export class Shooter {
     if (this.keyMap.keyS.isPressed) {
       this.y += DELTA_MOVE;
     }
-
-    if (!this.isShooting) {
-      this.xBullet = this.x + Shooter.WIDTH;
-      this.yBullet = this.y
-    }
   }
 
-  moveBullet(deltaTime: number) {
+  fire(gameContext: GameContext, playerId: string) {
     if (this.isShooting) {
-      const SPEED = 200;
-      const DELTA_MOVE: number = SPEED * deltaTime / 1000;
-
-      this.xBullet += DELTA_MOVE;
-
-      if (this.xBullet > GameField.WIDTH_CANVAS) {
-        this.xBullet = this.x + Shooter.WIDTH;
-        this.yBullet = this.y;
-        this.isShooting = false;
+      const FIRE_DELAY = 200;
+      const currentTimeStamp = Date.now();
+      if ((currentTimeStamp - this._lastFireTimeStamp) > FIRE_DELAY) {
+        this._lastFireTimeStamp = currentTimeStamp;
+        gameContext.bullets.push(new Bullet(this.x + Shooter.WIDTH, this.y, playerId));
       }
-    }
-  }
-
-  collisionAndObject(BlockMap) {
-    for (const block of BlockMap) {
-      const intervalForY = this.yBullet < block.y + Block.HEIGHT && this.yBullet + 5 > block.y;
-      const intervalForX = this.xBullet < block.x + Block.WIDTH && this.xBullet + 5 > block.x;
-
-
-      if (intervalForX) {
-        if (this.yBullet + 5 > block.y && this.yBullet + 5 < block.y + 0.3 * Block.HEIGHT) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          break;
-        } else if (this.yBullet > block.y + 0.7 * Block.HEIGHT && this.yBullet < block.y + Block.HEIGHT) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          break;
-        }
-      }
-      if (intervalForY) {
-        if (this.xBullet + 5 > block.x && this.xBullet + 5 < block.x + 0.2 * Block.WIDTH) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          break;
-        } else if (this.xBullet > block.x + 0.8 * Block.WIDTH && this.xBullet < block.x + Block.WIDTH) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          break;
-        }
-      }
-    }
-
-    for (const shooter in GameContext.players) {
-
-      const intervalForY = this.yBullet < GameContext.players[shooter].y + Shooter.HEIGHT && this.yBullet + 5 > GameContext.players[shooter].y;
-      const intervalForX = this.xBullet < GameContext.players[shooter].x + Shooter.WIDTH && this.xBullet + 5 > GameContext.players[shooter].x;
-
-
-      if (intervalForX) {
-        if (this.yBullet + 5 > GameContext.players[shooter].y && this.yBullet + 5 < GameContext.players[shooter].y + 0.3 * Shooter.HEIGHT) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          GameContext.players[shooter].health -= 10;
-          break;
-        } else if (this.yBullet > GameContext.players[shooter].y + 0.7 * Shooter.HEIGHT && this.yBullet < GameContext.players[shooter].y + Shooter.HEIGHT) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          GameContext.players[shooter].health -= 10;
-          break;
-        }
-      }
-      if (intervalForY) {
-        if (this.xBullet + 5 > GameContext.players[shooter].x && this.xBullet + 5 < GameContext.players[shooter].x + 0.2 * Shooter.WIDTH) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          GameContext.players[shooter].health -= 10;
-          break;
-        } else if (this.xBullet > GameContext.players[shooter].x + 0.8 * Shooter.WIDTH && this.xBullet < GameContext.players[shooter].x + Shooter.WIDTH) {
-          this.xBullet = this.x + Shooter.WIDTH;
-          this.yBullet = this.y;
-          this.isShooting = false;
-          GameContext.players[shooter].health -= 10;
-          break;
-        }
-      }
-      if (this.health < 0) {
-        this.health = 0;
-      }
-
     }
   }
 }

@@ -1,10 +1,18 @@
 export class GameContext {
   public players;
   public bullets;
-  public static INITIAL_COORDINATES = {
-    x: 123,
-    y: 122,
-  };
+  public static INITIAL_COORDINATES: {x: number, y: number}[] = [
+    {x: 100, y: 100},
+    {x: 1400, y: 100},
+    {x: 750, y: 250},
+    {x: 300, y: 250},
+    {x: 1200, y: 250},
+    {x: 100, y: 450},
+    {x: 1400, y: 450},
+    {x: 1000, y: 450},
+    {x: 700, y: 450},
+    {x: 700, y: 100},
+  ];
   public blocks;
 
   constructor() {

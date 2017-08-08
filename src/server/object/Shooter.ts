@@ -7,8 +7,8 @@ export class Shooter {
   public y: number;
   public isShooting: boolean;
   public health: number;
-  public static WIDTH = 25;
-  public static HEIGHT = 25;
+  public static WIDTH = 30;
+  public static HEIGHT = 30;
   private _directionX: Direction;
   private _directionY: Direction;
   private keyMap = {
@@ -95,7 +95,7 @@ export class Shooter {
       const currentTimeStamp = Date.now();
       if ((currentTimeStamp - this._lastFireTimeStamp) > FIRE_DELAY) {
         this._lastFireTimeStamp = currentTimeStamp;
-        gameContext.bullets.push(new Bullet(this.x + Shooter.WIDTH, this.y, playerId));
+        gameContext.bullets.push(new Bullet(this.x + Shooter.WIDTH, this.y + Shooter.HEIGHT/3, playerId));
       }
     }
   }

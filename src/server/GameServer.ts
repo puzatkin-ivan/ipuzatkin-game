@@ -1,7 +1,6 @@
 import WebSocket = require("ws");
 import {Shooter} from "./object/Shooter";
 import {gamePhysics} from "./processes/gamePhysics";
-import {Block} from "./object/Block";
 import {GameContext} from "./object/GameContext";
 
 export namespace GameServer {
@@ -46,7 +45,8 @@ export namespace GameServer {
     socketServer.on('connection', (client: WebSocket) => {
       countShooter += 1;
       const shooter = "shooter" + countShooter;
-      gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES.x, GameContext.INITIAL_COORDINATES.y);
+      const numberPlace = countShooter % 10;
+      gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y);
 
       client.send(JSON.stringify(gameContext));
 

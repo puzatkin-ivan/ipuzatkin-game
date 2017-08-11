@@ -1,28 +1,51 @@
 import {GameContext} from "./GameContext";
-import {Shooter} from "./Shooter";
 import {Block} from "./Block";
 import {GameField} from "../../client/object/GameField";
+import {Direction} from "../direction";
 
 export class Bullet {
   public x: number;
   public y: number;
-  private _width = 10;
-  private _height = 10;
+  public static WIDTH = 10;
+  public static HEIGHT = 10;
   public isDead: boolean;
   private _playerId: string;
+  private _direction: Direction;
 
   constructor(x: number, y: number, playerId: string) {
     this.x = x;
     this.y = y;
     this._playerId = playerId;
     this.isDead = false;
+    this._direction = Direction.RIGHT;
+  }
+
+  setDirection(gameContext: GameContext) {
+    const player = gameContext.players[this._playerId];
+    if (player.direction === Direction.UP) {
+      this._direction = Direction.UP;
+    } else if (player.direction === Direction.DOWN) {
+      this._direction = Direction.DOWN;
+    } else if (player.direction === Direction.LEFT) {
+      this._direction = Direction.LEFT;
+    } else if (player.direction === Direction.RIGHT) {
+      this._direction = Direction.RIGHT;
+    }
   }
 
   move(deltaTime: number) {
     if (!this.isDead) {
       const SPEED = 400;
       const deltaMove: number = SPEED * deltaTime / 1000;
-      this.x += deltaMove;
+      if (this._direction === Direction.LEFT) {
+        this.x -= deltaMove;
+      } else if (this._direction === Direction.UP) {
+        this.y -= deltaMove;
+      } else if (this._direction === Direction.RIGHT) {
+        this.x += deltaMove;
+      } else if (this._direction === Direction.DOWN) {
+        this.y += deltaMove;
+      }
     }
   }
 
@@ -34,10 +57,10 @@ export class Bullet {
 
     if (!this.isDead) {
       for (const block of Object.keys(gameContext.blocks)) {
-        const intervalForX: boolean = this.x <= gameContext.blocks[block].x + Block.WIDTH && this.x + this._width >= gameContext.blocks[block].x;
+        const intervalForX: boolean = this.x <= gameContext.blocks[block].x + Block.WIDTH && this.x + Bullet.WIDTH >= gameContext.blocks[block].x;
 
         if (intervalForX) {
-          if (this.y + this._height >= gameContext.blocks[block].y && this.y + this._height < gameContext.blocks[block].y + Block.HEIGHT) {
+          if (this.y + Bullet.HEIGHT >= gameContext.blocks[block].y && this.y + Bullet.HEIGHT < gameContext.blocks[block].y + Block.HEIGHT) {
             this.isDead = true;
             break;
           } else if (this.y > gameContext.blocks[block].y && this.y < gameContext.blocks[block].y + Block.HEIGHT) {
@@ -48,15 +71,16 @@ export class Bullet {
       }
 
       for (const shooter of Object.keys(gameContext.players)) {
-        const intervalForX = this.x < gameContext.players[shooter].x + Shooter.WIDTH && this.x + this._width > gameContext.players[shooter].x;
+        const player = gameContext.players[shooter];
+        const intervalForX = this.x < gameContext.players[shooter].x + player.width && this.x + Bullet.WIDTH > gameContext.players[shooter].x;
 
         if (gameContext.players[shooter] != gameContext.players[this._playerId]) {
           if (intervalForX) {
-            if (this.y + this._height > gameContext.players[shooter].y && this.y + this._height < gameContext.players[shooter].y + Shooter.HEIGHT) {
+            if (this.y + Bullet.HEIGHT > gameContext.players[shooter].y && this.y + Bullet.HEIGHT < gameContext.players[shooter].y + player.height) {
               gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 10, 0);
               this.isDead = true;
               break;
-            } else if (this.y > gameContext.players[shooter].y && this.y < gameContext.players[shooter].y + Shooter.HEIGHT) {
+            } else if (this.y > gameContext.players[shooter].y && this.y < gameContext.players[shooter].y + player.height) {
               gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 10, 0);
               this.isDead = true;
               break;

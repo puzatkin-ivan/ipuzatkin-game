@@ -5,8 +5,8 @@ export class Bullet {
   private _height = 10;
 
   constructor(x: number, y: number) {
-    this._x = x;
-    this._y = y;
+    this._x = x - this._width / 2;
+    this._y = y - this._height / 2;
   }
   draw(context: CanvasRenderingContext2D) {
     context.fillStyle = "#2c30ff";

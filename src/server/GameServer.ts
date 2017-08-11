@@ -30,9 +30,11 @@ export namespace GameServer {
       }
 
       for (const shooter of  Object.keys(gameContext.players)) {
+        gameContext.players[shooter].setDirection();
         gameContext.players[shooter].move(deltaTime);
-        gameContext.players[shooter].fire(gameContext, shooter);
         gamePhysics(gameContext, shooter);
+
+        gameContext.players[shooter].fire(gameContext);
       }
       broadcast(socketServer, JSON.stringify(gameContext));
     }, 1000/60);
@@ -46,8 +48,7 @@ export namespace GameServer {
       countShooter += 1;
       const shooter = "shooter" + countShooter;
       const numberPlace = countShooter % 10;
-      gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y);
-
+      gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y, shooter);
       client.send(JSON.stringify(gameContext));
 
       client.on("close", () => {
@@ -56,7 +57,7 @@ export namespace GameServer {
       });
 
       client.on("message", (message: any) => {
-        gameContext.players[shooter].setDirection(JSON.parse(message));
+        gameContext.players[shooter].updateKeyMap(JSON.parse(message));
       });
     });
   }

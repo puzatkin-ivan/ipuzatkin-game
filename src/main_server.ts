@@ -5,15 +5,10 @@ import * as path from "path";
 import {GameServer} from "./server/GameServer";
 
 const app = express();
-
 app.use("/", express.static(path.join(__dirname, "../client")));
 
 const server = http.createServer(app);
-
-
 const webSocketServer: WebSocket.Server = new WebSocket.Server({ server });
-
-
 
 const PORT = 3000;
 server.listen(PORT, () => {

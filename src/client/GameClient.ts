@@ -1,20 +1,23 @@
 import {GameField} from "./object/GameField";
-import {Shooter} from "./object/Shooter";
+import {GameContext} from "./object/GameContext";
 import {Block} from "./object/Block";
-import {GameContext} from "../GameContext";
+import {Bullet} from "./object/Bullet";
+import {Shooter} from "./object/Shooter";
 
 export namespace GameClient {
-  const canvas = <HTMLCanvasElement>document.getElementById("canvas");
-  const canvasContext: CanvasRenderingContext2D = canvas.getContext("2d");
-
-
+  let gameContext: GameContext;
   export function initGame(socket: WebSocket) {
+    gameContext = new GameContext();
+    const canvas = <HTMLCanvasElement>document.getElementById("canvas");
+    const canvasContext: CanvasRenderingContext2D = canvas.getContext("2d");
+
     socket.onopen = () => {
       canvas.width = GameField.WIDTH_CANVAS;
       canvas.height = GameField.HEIGHT_CANVAS;
 
       const sendKey = (key: KeyboardEvent, isPressed: boolean) => {
         const keyMap = {
+          message: "keyMap",
           key: key.keyCode,
           isPressed: isPressed,
         };
@@ -24,33 +27,37 @@ export namespace GameClient {
 
       window.addEventListener("keydown", (key) => {sendKey(key, true)});
       window.addEventListener("keyup", (key) => {sendKey(key, false)});
-      window.addEventListener("click", () => {});
-
     };
 
-     socket.onmessage = (message: MessageEvent) => {
-       const ShootersMap = JSON.parse(message.data);
-       requestAnimationFrame(() => {
-         gameLoop(ShootersMap);
-       });
-       };
+    socket.onmessage = (message: MessageEvent) => {
+      gameContext = JSON.parse(message.data)
+    };
 
-       socket.onclose = () => {
-         alert("Sorry, Server Close")
-       };
-     }
+    socket.onclose = () => {
+      alert("Sorry, Server Close")
+    };
 
-     const gameLoop = (ShootersMap) => {
-       const ninepins = new Block(GameContext.block.block1.x, GameContext.block.block1.y);
-       const ninepins2 = new Block(GameContext.block.block2.x, GameContext.block.block2.y);
+    setInterval(() => {
+      gameLoop(canvasContext);
+    }, 1000 / 60);
+  }
 
-       GameField.draw(canvasContext);
-       ninepins.draw(canvasContext);
-       ninepins2.draw(canvasContext);
+  const gameLoop = (canvasContext: CanvasRenderingContext2D) =>  {
+    GameField.draw(canvasContext);
+    for (const item of gameContext.blocks) {
+      const block = new Block(item.x, item.y);
+      block.draw(canvasContext);
+    }
 
-       for (const id in ShootersMap) {
-         const player = new Shooter(ShootersMap[id].x, ShootersMap[id].y);
-         player.draw(canvasContext);
-       }
-     }
- }
+    for (const item of gameContext.bullets) {
+      const bullet = new Bullet(item.x, item.y);
+      bullet.draw(canvasContext);
+    }
+
+    for (const shooter of Object.keys(gameContext.players)) {
+      const player = new Shooter(gameContext.players[shooter].x, gameContext.players[shooter].y, gameContext.players[shooter].health, gameContext.players[shooter].direction);
+      player.draw(canvasContext);
+      player.drawGun(canvasContext);
+    }
+  }
+}

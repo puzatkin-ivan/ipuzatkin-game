@@ -8,6 +8,6 @@ export class Block {
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.fillRect(this._x, this._y, 200, 50);
+    context.fillRect(this._x, this._y, 150, 50);
   }
 }

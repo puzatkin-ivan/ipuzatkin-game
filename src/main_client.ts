@@ -1,4 +1,4 @@
 import {GameClient} from "./client/GameClient";
-const socket: WebSocket = new WebSocket('ws://' + window.location.host);
+const socket: WebSocket = new WebSocket('ws://localhost:3000');
 
 GameClient.initGame(socket);

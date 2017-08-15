@@ -14,12 +14,32 @@ export namespace GameServer {
 
   let gameContext: GameContext = new GameContext();
 
+  function sendMessage(gameContext: GameContext) {
+    return {
+      type: "update data",
+      players: gameContext.players,
+      bullets: gameContext.bullets,
+    }
+  }
+
   function startGameServer(socketServer: WebSocket.Server) {
     let lastTimeFrame = Date.now();
     setInterval(() => {
       const currentTimeFrame = Date.now();
       const deltaTime = currentTimeFrame - lastTimeFrame;
       lastTimeFrame = currentTimeFrame;
+
+      for (const shooter of  Object.keys(gameContext.players)) {
+        if (gameContext.players[shooter].health != 0) {
+          gameContext.players[shooter].setDirection();
+          gameContext.players[shooter].move(deltaTime);
+          gamePhysics(gameContext, shooter);
+          gameContext.players[shooter].fire(gameContext);
+        } else if (!gameContext.players[shooter].isDead) {
+          gameContext.players[shooter].isDead = true;
+          gameContext.players[shooter].checkTime = Date.now();
+        }
+      }
 
       for (const bullet of gameContext.bullets) {
         bullet.move(deltaTime);
@@ -28,15 +48,7 @@ export namespace GameServer {
           gameContext.bullets.splice(gameContext.bullets.indexOf(bullet), 1);
         }
       }
-
-      for (const shooter of  Object.keys(gameContext.players)) {
-        gameContext.players[shooter].setDirection();
-        gameContext.players[shooter].move(deltaTime);
-        gamePhysics(gameContext, shooter);
-
-        gameContext.players[shooter].fire(gameContext);
-      }
-      broadcast(socketServer, JSON.stringify(gameContext));
+      broadcast(socketServer, JSON.stringify(sendMessage(gameContext)));
     }, 1000/60);
   }
 
@@ -49,7 +61,16 @@ export namespace GameServer {
       const shooter = "shooter" + countShooter;
       const numberPlace = countShooter % 10;
       gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y, shooter);
-      client.send(JSON.stringify(gameContext));
+
+      const sendInitialMessage = (gameContext: GameContext, playerId: string) => {
+        return {
+          type: "message for new client",
+          id: playerId,
+          gameContext: gameContext,
+        }
+      };
+
+      client.send(JSON.stringify(sendInitialMessage(gameContext, shooter)));
 
       client.on("close", () => {
         delete gameContext.players[shooter];

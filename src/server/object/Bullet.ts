@@ -1,7 +1,6 @@
 import {GameContext} from "./GameContext";
-import {Block} from "./Block";
 import {GameField} from "../../client/object/GameField";
-import {Direction} from "../direction";
+import {Direction} from "../../direction";
 
 export class Bullet {
   public x: number;
@@ -35,7 +34,7 @@ export class Bullet {
 
   move(deltaTime: number) {
     if (!this.isDead) {
-      const SPEED = 400;
+      const SPEED = 1500;
       const deltaMove: number = SPEED * deltaTime / 1000;
       if (this._direction === Direction.LEFT) {
         this.x -= deltaMove;
@@ -51,19 +50,19 @@ export class Bullet {
 
   collision(gameContext: GameContext) {
 
-    if (this.x <= 0 && this.x >= GameField.WIDTH_CANVAS || this.y <= 0 && this.y >= GameField.HEIGHT_CANVAS) {
+    if (this.x < 0 || this.x > GameField.WIDTH_CANVAS || this.y < 0 || this.y > GameField.HEIGHT_CANVAS) {
       this.isDead = true;
     }
 
     if (!this.isDead) {
-      for (const block of Object.keys(gameContext.blocks)) {
-        const intervalForX: boolean = this.x <= gameContext.blocks[block].x + Block.WIDTH && this.x + Bullet.WIDTH >= gameContext.blocks[block].x;
+      for (const block of gameContext.blocks) {
+        const intervalForX: boolean = this.x <= block.x + block.width && this.x + Bullet.WIDTH >= block.x;
 
         if (intervalForX) {
-          if (this.y + Bullet.HEIGHT >= gameContext.blocks[block].y && this.y + Bullet.HEIGHT < gameContext.blocks[block].y + Block.HEIGHT) {
+          if (this.y + Bullet.HEIGHT >= block.y && this.y + Bullet.HEIGHT < block.y + block.height) {
             this.isDead = true;
             break;
-          } else if (this.y > gameContext.blocks[block].y && this.y < gameContext.blocks[block].y + Block.HEIGHT) {
+          } else if (this.y > block.y && this.y < block.y + block.height) {
             this.isDead = true;
             break;
           }

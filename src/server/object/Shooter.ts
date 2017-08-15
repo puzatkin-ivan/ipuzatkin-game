@@ -1,16 +1,18 @@
-import {Direction} from "../direction";
+import {Direction} from "../../direction";
 import {GameContext} from "./GameContext";
 import {Bullet} from "./Bullet";
 
 export class Shooter {
   public x: number;
   public y: number;
-  public isShooting: boolean;
   public health: number;
+  public isShooting: boolean;
+  public isDead: boolean;
+  public checkTime: number;
   public width = 30;
   public height = 30;
   public direction: Direction;
-  private _playerId: string;
+  public playerId: string;
   private keyMap = {
     keyA: {
       code: 65,
@@ -56,40 +58,56 @@ export class Shooter {
     this.x = x;
     this.y = y;
     this.health = 100;
-    this._playerId = playerId;
+    this.playerId = playerId;
     this.isShooting = false;
+    this.isDead = false;
     this.direction = Direction.RIGHT;
+    this.checkTime = Date.now();
   }
 
   updateKeyMap(keyMap: any) {
-    switch (keyMap.key) {
-      case this.keyMap.keyA.code:
-        this.keyMap.keyA.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.keyW.code:
-        this.keyMap.keyW.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.keyD.code:
-        this.keyMap.keyD.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.keyS.code:
-        this.keyMap.keyS.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.keySpace.code:
-        this.isShooting = keyMap.isPressed;
-        break;
-      case this.keyMap.arrowLeft.code:
-        this.keyMap.arrowLeft.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.arrowUp.code:
-        this.keyMap.arrowUp.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.arrowRight.code:
-        this.keyMap.arrowRight.isPressed = keyMap.isPressed;
-        break;
-      case this.keyMap.arrowDown.code:
-        this.keyMap.arrowDown.isPressed = keyMap.isPressed;
-        break;
+    if (!this.isDead) {
+      switch (keyMap.key) {
+        case this.keyMap.keyA.code:
+          this.keyMap.keyA.isPressed = keyMap.isPressed;
+          break;
+        case this.keyMap.keyW.code:
+          this.keyMap.keyW.isPressed = keyMap.isPressed;
+          break;
+        case this.keyMap.keyD.code:
+          this.keyMap.keyD.isPressed = keyMap.isPressed;
+          break;
+        case this.keyMap.keyS.code:
+          this.keyMap.keyS.isPressed = keyMap.isPressed;
+          break;
+        case this.keyMap.arrowLeft.code:
+          this.keyMap.arrowLeft.isPressed = keyMap.isPressed;
+          this.isShooting = keyMap.isPressed;
+          break;
+        case this.keyMap.arrowUp.code:
+          this.keyMap.arrowUp.isPressed = keyMap.isPressed;
+          this.isShooting = keyMap.isPressed;
+          break;
+        case this.keyMap.arrowRight.code:
+          this.keyMap.arrowRight.isPressed = keyMap.isPressed;
+          this.isShooting = keyMap.isPressed;
+          break;
+        case this.keyMap.arrowDown.code:
+          this.keyMap.arrowDown.isPressed = keyMap.isPressed;
+          this.isShooting = keyMap.isPressed;
+          break;
+      }
+    } else {
+      if (keyMap.isPressed) {
+        const currentTime = Date.now();
+        const deltaTime = currentTime - this.checkTime;
+        if (deltaTime > 3000) {
+          this.health = 100;
+          this.x = GameContext.INITIAL_COORDINATES[Math.floor(10 * Math.random())].x;
+          this.y = GameContext.INITIAL_COORDINATES[Math.floor(10 * Math.random())].y;
+          this.isDead = false;
+        }
+      }
     }
   }
 
@@ -106,30 +124,43 @@ export class Shooter {
   }
 
   move(deltaTime: number) {
-    const SPEED = 200;
-    const DELTA_MOVE = SPEED * deltaTime / 1000;
+    const SPEED = 500;
+    const deltaMove = SPEED * deltaTime / 1000;
 
-    if (this.keyMap.keyA.isPressed) {
-      this.x -= DELTA_MOVE;
-    }
     if (this.keyMap.keyW.isPressed) {
-      this.y -= DELTA_MOVE;
-    }
-    if (this.keyMap.keyD.isPressed) {
-      this.x += DELTA_MOVE;
-    }
-    if (this.keyMap.keyS.isPressed) {
-      this.y += DELTA_MOVE;
+      if (this.keyMap.keyA.isPressed) {
+        this.y -= deltaMove / Math.sqrt(2);
+        this.x -= deltaMove / Math.sqrt(2);
+      } else if (this.keyMap.keyD.isPressed) {
+        this.y -= deltaMove / Math.sqrt(2);
+        this.x += deltaMove / Math.sqrt(2);
+      } else {
+        this.y -= deltaMove;
+      }
+    } else if (this.keyMap.keyS.isPressed) {
+      if (this.keyMap.keyA.isPressed) {
+        this.y += deltaMove / Math.sqrt(2);
+        this.x -= deltaMove / Math.sqrt(2);
+      } else if (this.keyMap.keyD.isPressed) {
+        this.y += deltaMove / Math.sqrt(2);
+        this.x += deltaMove / Math.sqrt(2);
+      } else {
+        this.y += deltaMove;
+      }
+    } else if (this.keyMap.keyA.isPressed) {
+      this.x -= deltaMove;
+    } else if (this.keyMap.keyD.isPressed) {
+      this.x += deltaMove;
     }
   }
 
   fire(gameContext: GameContext) {
     if (this.isShooting) {
-      const FIRE_DELAY = 200;
+      const FIRE_DELAY = 500;
       const currentTimeStamp = Date.now();
       if ((currentTimeStamp - this._lastFireTimeStamp) > FIRE_DELAY) {
         this._lastFireTimeStamp = currentTimeStamp;
-        gameContext.bullets.push(new Bullet(this.x, this.y, this._playerId));
+        gameContext.bullets.push(new Bullet(this.x, this.y, this.playerId));
         gameContext.bullets[gameContext.bullets.length - 1].setDirection(gameContext);
       }
     }

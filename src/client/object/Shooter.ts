@@ -14,12 +14,15 @@ export class Shooter {
     this._direction = direction;
   }
 
-
-  draw(context: CanvasRenderingContext2D) {
+  draw(context: CanvasRenderingContext2D, playerId: string, playerId2: string) {
     if (this._health === 0) {
       context.fillStyle = "#494949";
     } else {
-      context.fillStyle = "#348eda";
+      if (playerId === playerId2) {
+        context.fillStyle = "#ffc200";
+      } else {
+        context.fillStyle = "#348eda";
+      }
     }
     context.fillRect(this._x, this._y, this._width, this._height);
 

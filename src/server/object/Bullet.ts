@@ -1,6 +1,7 @@
 import {GameContext} from "./GameContext";
 import {GameField} from "../../client/object/GameField";
-import {Direction} from "../../direction";
+import {Direction} from "../../common/direction";
+import {Parameters} from "../../common/parameters";
 
 export class Bullet {
   public x: number;
@@ -34,7 +35,7 @@ export class Bullet {
 
   move(deltaTime: number) {
     if (!this.isDead) {
-      const SPEED = 1500;
+      const SPEED = Parameters.SPEED_BULLET;
       const deltaMove: number = SPEED * deltaTime / 1000;
       if (this._direction === Direction.LEFT) {
         this.x -= deltaMove;
@@ -76,15 +77,19 @@ export class Bullet {
         if (gameContext.players[shooter] != gameContext.players[this._playerId]) {
           if (intervalForX) {
             if (this.y + Bullet.HEIGHT > gameContext.players[shooter].y && this.y + Bullet.HEIGHT < gameContext.players[shooter].y + player.height) {
-              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 10, 0);
+              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 25, 0);
               this.isDead = true;
-              break;
             } else if (this.y > gameContext.players[shooter].y && this.y < gameContext.players[shooter].y + player.height) {
-              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 10, 0);
+              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 25, 0);
               this.isDead = true;
-              break;
             }
           }
+        }
+        if (gameContext.players[shooter].health === 0 && !gameContext.players[shooter].isDead) {
+          gameContext.players[shooter].isDead = true;
+          gameContext.players[shooter].checkTime = Date.now();
+          gameContext.players[shooter].dead += 1;
+          gameContext.players[this._playerId].frag += 1;
         }
       }
     }

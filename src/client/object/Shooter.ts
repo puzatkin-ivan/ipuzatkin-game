@@ -6,19 +6,21 @@ export class Shooter {
   private _width = 30;
   private _heightHP = 8;
   private _direction: string;
+  private _playerId: string;
 
-  constructor(x, y, health, direction) {
+  constructor(x, y, health, direction, playerId: string) {
     this._x = x - this._width / 2;
     this._y = y - this._height / 2;
     this._health = health;
     this._direction = direction;
+    this._playerId = playerId;
   }
 
-  draw(context: CanvasRenderingContext2D, playerId: string, playerId2: string) {
+  draw(context: CanvasRenderingContext2D, currentPlayerId: string) {
     if (this._health === 0) {
       context.fillStyle = "#494949";
     } else {
-      if (playerId === playerId2) {
+      if (this._playerId === currentPlayerId) {
         context.fillStyle = "#ffc200";
       } else {
         context.fillStyle = "#348eda";
@@ -26,7 +28,7 @@ export class Shooter {
     }
     context.fillRect(this._x, this._y, this._width, this._height);
 
-    const y = this._y - 10;
+    const y = this._y;
     const coeffCoord = this._health / 100;
     context.beginPath();
     context.fillStyle = "#7cc26e";

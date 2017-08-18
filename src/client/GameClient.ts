@@ -4,23 +4,34 @@ import {Block} from "./object/Block";
 import {Bullet} from "./object/Bullet";
 import {Shooter} from "./object/Shooter";
 import {Spinner} from "./object/Spinner";
-import {Direction} from "../direction";
+import {Direction} from "../common/direction";
 
 export namespace GameClient {
 
-  export function initGame(socket: WebSocket) {
+  export function initGame(socket: WebSocket, nicknameClient: string) {
     let gameContext: GameContext = new GameContext();
     let playerId: string;
     const canvas = <HTMLCanvasElement>document.getElementById("canvas");
     const canvasContext: CanvasRenderingContext2D = canvas.getContext("2d");
 
     socket.onopen = () => {
+      const sendNickname = (nicknameClient: string) => {
+        const nickname = {
+          type: "nickname",
+          id: nicknameClient,
+        };
+
+        socket.send(JSON.stringify(nickname))
+      };
+
+      sendNickname(nicknameClient);
+
       canvas.width = GameField.WIDTH_CANVAS;
       canvas.height = GameField.HEIGHT_CANVAS;
 
       const sendKey = (key: KeyboardEvent, isPressed: boolean) => {
         const keyMap = {
-          message: "keyMap",
+          type: "keyMap",
           key: key.keyCode,
           isPressed: isPressed,
         };
@@ -56,7 +67,7 @@ export namespace GameClient {
   }
 
   const spinners = [
-    new Spinner(Spinner.X1, Spinner.Y1, Direction.DOWN),
+    new Spinner(Spinner.X1, Spinner.Y1, Direction.DOWN),,
     new Spinner(Spinner.X2, Spinner.Y2, Direction.LEFT),
     new Spinner(Spinner.X3, Spinner.Y3, Direction.UP),
   ];
@@ -76,9 +87,46 @@ export namespace GameClient {
     }
 
     for (const shooter of Object.keys(gameContext.players)) {
-      const player = new Shooter(gameContext.players[shooter].x, gameContext.players[shooter].y, gameContext.players[shooter].health, gameContext.players[shooter].direction);
-      player.draw(canvasContext, playerId, shooter);
+      const item = gameContext.players[shooter];
+      const player = new Shooter(item.x, item.y, item.health, item.direction, item.playerId);
+      player.draw(canvasContext, playerId);
       player.drawGun(canvasContext);
+    }
+
+    if (gameContext.players[playerId].isShowTable) {
+      canvasContext.fillStyle = "rgba(0, 0, 0, 0.7)";
+      canvasContext.fillRect(200, 100, 1100, 400);
+
+      canvasContext.fillStyle = "#4663ff";
+      canvasContext.font = 'bold 24px sans-serif';
+      canvasContext.fillText("Players", 300, 150);
+      canvasContext.fillText("Status", 600, 150);
+      canvasContext.fillText("Frag", 900, 150);
+      canvasContext.fillText("Dead", 1100, 150);
+
+      canvasContext.fillRect(200, 170, 1100, 5);
+
+      let numberPlayer = 0;
+      let yPlayer = 200;
+      for (const shooter of Object.keys(gameContext.players)) {
+        const player = gameContext.players[shooter];
+        numberPlayer++;
+        if (shooter === playerId) {
+          canvasContext.fillStyle = "#38ff16";
+        } else {
+          canvasContext.fillStyle = "#4663ff";
+        }
+        canvasContext.fillText("" + numberPlayer + "" + ". " + player.nickname, 300, yPlayer);
+        if (player.isDead) {
+          canvasContext.fillText("Dead", 600, yPlayer);
+        } else {
+          canvasContext.fillText("Alive", 600, yPlayer);
+        }
+        canvasContext.fillText("" + player.frag, 920, yPlayer);
+        canvasContext.fillText("" + player.dead, 1125, yPlayer);
+
+        yPlayer += 30;
+      }
     }
 
     if (gameContext.players[playerId].isDead) {

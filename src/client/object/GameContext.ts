@@ -1,5 +1,6 @@
 export class GameContext {
   public players;
+  public table;
   public bullets: {x: number, y: number}[];
   public blocks;
 
@@ -7,5 +8,6 @@ export class GameContext {
     this.players = {};
     this.blocks = {};
     this.bullets = [];
+    this.table = {};
   }
 }

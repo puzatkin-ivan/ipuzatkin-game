@@ -19,6 +19,7 @@ export namespace GameServer {
       type: "update data",
       players: gameContext.players,
       bullets: gameContext.bullets,
+      table: gameContext.table,
     }
   }
 
@@ -36,7 +37,6 @@ export namespace GameServer {
           gamePhysics(gameContext, shooter);
           gameContext.players[shooter].fire(gameContext);
         } else if (!gameContext.players[shooter].isDead) {
-          gameContext.players[shooter].isDead = true;
           gameContext.players[shooter].checkTime = Date.now();
         }
       }
@@ -48,6 +48,7 @@ export namespace GameServer {
           gameContext.bullets.splice(gameContext.bullets.indexOf(bullet), 1);
         }
       }
+
       broadcast(socketServer, JSON.stringify(sendMessage(gameContext)));
     }, 1000/60);
   }
@@ -78,7 +79,15 @@ export namespace GameServer {
       });
 
       client.on("message", (message: any) => {
-        gameContext.players[shooter].updateKeyMap(JSON.parse(message));
+        const data = JSON.parse(message);
+        switch (data.type) {
+          case "nickname":
+            gameContext.players[shooter].nickname = data.id;
+          break;
+          case "keyMap":
+            gameContext.players[shooter].updateKeyMap(data);
+          break;
+        }
       });
     });
   }

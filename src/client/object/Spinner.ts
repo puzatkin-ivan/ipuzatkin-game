@@ -1,4 +1,4 @@
-import {Direction} from "../../direction";
+import {Direction} from "../../common/direction";
 
 export class Spinner{
   public x: number;
@@ -8,7 +8,7 @@ export class Spinner{
   public static X1 = 750;
   public static Y1 = 250;
   public static X2 = Spinner.X1 + 25;
-  public static Y2 = Spinner.Y1 + Math.sqrt(2500 - 625);
+  public static Y2 = Spinner.Y1 + 44;
   public static X3 = Spinner.X1 - 25;
   public static Y3 = Spinner.Y2;
 
@@ -21,15 +21,16 @@ export class Spinner{
   move(deltaTime: number) {
     const SPEED = 100;
     const deltaMove = SPEED * deltaTime / 1000;
-    const coefficient = 2.5/4.3;
+    const coefficient = 4.3/5;
+    const sqrt2 = Math.sqrt(2);
     if (this.direction === Direction.UP) {
-      this.x += deltaMove  / Math.sqrt(2) * coefficient;
-      this.y -= deltaMove / Math.sqrt(2);
+      this.x += deltaMove / sqrt2 / 2;
+      this.y -= deltaMove / sqrt2 * coefficient;
     } else if (this.direction === Direction.DOWN) {
-      this.x += deltaMove / Math.sqrt(2) * coefficient;
-      this.y += deltaMove / Math.sqrt(2);
+      this.x += deltaMove/ sqrt2  / 2;
+      this.y += deltaMove / sqrt2 * coefficient;
     } else {
-      this.x -= deltaMove * 0.9;
+      this.x -= deltaMove * 0.74;
     }
 
     if (this.x > Spinner.X1 && this.direction === Direction.UP) {

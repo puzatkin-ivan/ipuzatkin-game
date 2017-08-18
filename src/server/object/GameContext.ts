@@ -1,7 +1,9 @@
 import {Block} from "./Block";
+import {Table} from "./Table";
 
 export class GameContext {
   public players;
+  public table: Table;
   public bullets;
   public blocks;
   public static INITIAL_COORDINATES: {x: number, y: number}[] = [
@@ -18,6 +20,7 @@ export class GameContext {
   ];
 
   constructor() {
+    this.table = new Table;
     this.players = {};
     this.bullets = [];
     this.blocks = [

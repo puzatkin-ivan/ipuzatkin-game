@@ -14,12 +14,12 @@ export namespace GameServer {
 
   let gameContext: GameContext = new GameContext();
 
-  function sendMessage(gameContext: GameContext) {
+  function sendMessage(players: any, bullets: any) {
     return {
       type: "update data",
-      players: gameContext.players,
-      bullets: gameContext.bullets,
-      table: gameContext.table,
+      players: players,
+      bullets: bullets,
+      first: gameContext.table.first,
     }
   }
 
@@ -30,50 +30,82 @@ export namespace GameServer {
       const deltaTime = currentTimeFrame - lastTimeFrame;
       lastTimeFrame = currentTimeFrame;
 
-      for (const shooter of  Object.keys(gameContext.players)) {
-        if (gameContext.players[shooter].health != 0) {
-          gameContext.players[shooter].setDirection();
-          gameContext.players[shooter].move(deltaTime);
-          gamePhysics(gameContext, shooter);
-          gameContext.players[shooter].fire(gameContext);
-        } else if (!gameContext.players[shooter].isDead) {
-          gameContext.players[shooter].checkTime = Date.now();
+      let players = {};
+      for (const playerId of Object.keys(gameContext.players)) {
+        const player = gameContext.players[playerId];
+        if (player.health != 0) {
+          player.setDirection();
+          player.move(deltaTime);
+          gamePhysics(gameContext, playerId);
+          player.fire(gameContext);
+        } else if (!player.isDead) {
+          player.checkTime = Date.now();
         }
+        player.initializationData();
+        players[playerId] = player.serialization();
       }
 
+      let bullets = [];
       for (const bullet of gameContext.bullets) {
         bullet.move(deltaTime);
         bullet.collision(gameContext);
         if (bullet.isDead) {
           gameContext.bullets.splice(gameContext.bullets.indexOf(bullet), 1);
         }
-      }
 
-      broadcast(socketServer, JSON.stringify(sendMessage(gameContext)));
+        bullets.push(bullet.serialization());
+      }
+      broadcast(socketServer, JSON.stringify(sendMessage(players, bullets)));
     }, 1000/60);
   }
 
   export function initGameServer(socketServer: WebSocket.Server) {
     startGameServer(socketServer);
-    let countShooter = 0;
 
+    let countShooter = 0;
     socketServer.on('connection', (client: WebSocket) => {
       countShooter += 1;
       const shooter = "shooter" + countShooter;
       const numberPlace = countShooter % 10;
       gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y, shooter);
 
-      const sendInitialMessage = (gameContext: GameContext, playerId: string) => {
-        return {
-          type: "message for new client",
-          id: playerId,
-          gameContext: gameContext,
+      const lengthPlayers = () => {
+        let count = 0;
+        let lastPlayer: string;
+        for (const element of Object.keys(gameContext.players)) {
+          count++;
+          lastPlayer = element;
+        }
+
+        if (count > 1) {
+          gameContext.players[lastPlayer].nextPlayerId = shooter;
+          return false;
+        } else {
+          gameContext.table.first = shooter;
+          return true;
         }
       };
 
-      client.send(JSON.stringify(sendInitialMessage(gameContext, shooter)));
+      const sendInitialMessage = (gameContext: GameContext) => {
+        if (lengthPlayers()) {
+          return {
+            type: "message for first client",
+            gameContext: gameContext.serialization(),
+            id: shooter,
+          }
+        } else {
+          return {
+            type: "message for new client",
+            gameContext: gameContext.serialization(),
+            id: shooter,
+          }
+        }
+      };
+
+      client.send(JSON.stringify(sendInitialMessage(gameContext)));
 
       client.on("close", () => {
+        gameContext.table.first = gameContext.players[shooter].nextPlayerId;
         delete gameContext.players[shooter];
         broadcast(socketServer, JSON.stringify(gameContext));
       });

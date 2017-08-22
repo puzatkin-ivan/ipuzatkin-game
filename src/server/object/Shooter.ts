@@ -15,19 +15,20 @@ export class Shooter {
   public isDead: boolean;
   public isShowTable: boolean;
   public checkTime: number;
-  public width = 30;
-  public height = 30;
+  public width = Parameters.WIDTH_SHOOTER;
+  public height = Parameters.HEIGHT_SHOOTER;
   public direction: Direction;
   public playerId: string;
   public nextPlayerId: string;
   public nickname: string;
-  private keyMap = new KeyMap();
+  private keyMap: KeyMap;
   private _lastFireTimeStamp = Date.now();
 
 
   constructor(x: number, y: number, playerId: string) {
     this.x = x;
     this.y = y;
+    this.keyMap = new KeyMap();
     this.health = 100;
     this.frag = 0;
     this.dead = 0;
@@ -39,6 +40,21 @@ export class Shooter {
     this.direction = Direction.RIGHT;
     this.checkTime = Date.now();
     this.coefficient = 0;
+  }
+
+  serialization(): object {
+    return {
+      x: this.x,
+      y: this.y,
+      isDead: this.isDead,
+      health: this.health,
+      frag: this.frag,
+      dead: this.dead,
+      coefficient: this.coefficient,
+      direction: this.direction,
+      nickname: this.nickname,
+      nextPlayerId: this.nextPlayerId,
+    }
   }
 
   updateKeyMap(keyMap: any) {

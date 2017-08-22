@@ -20,6 +20,13 @@ export class Bullet {
     this._direction = Direction.RIGHT;
   }
 
+  serialization(): object {
+    return {
+      x: this.x,
+      y: this.y,
+    }
+  }
+
   setDirection(gameContext: GameContext) {
     const player = gameContext.players[this._playerId];
     if (player.direction === Direction.UP) {

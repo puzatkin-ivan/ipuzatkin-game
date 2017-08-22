@@ -1,5 +1,3 @@
-
-
 export class Table {
   public first: string;
   private current: string;
@@ -12,28 +10,24 @@ export class Table {
     this.previous = "";
   }
 
-  insert(players) {
-    for (let playerId of Object.keys(players)) {
-      this.isFound = false;
-      this.current = this.first;
-      this.previous = "";
+  insert(players, playerId: string) {
+    this.isFound = false;
+    this.current = this.first;
+    this.previous = "";
 
-      while (this.current != "" && !this.isFound) {
-        if (players[this.current].coefficient >= players[playerId].coefficient) {
-          this.previous = this.current;
-          this.current = players[this.current].nextPlayerId;
-        } else {
-          this.isFound = true;
-        }
+    while (this.current != "" && !this.isFound) {
+      if (players[this.current].coefficient > players[playerId].coefficient) {
+        this.previous = this.current;
+        this.current = players[this.current].nextPlayerId;
+      } else {
+        this.isFound = true;
       }
-
-      if (this.previous = "") {
-        players[playerId].nextPlayerId = this.first;
-        this.first = players[playerId].playerId;
-      } else if (this.isFound) {
-        players[this.previous].nextPlayerId = playerId;
-        players[playerId].nextPlayerId = this.current;
-      }
+    }
+    players[playerId].nextPlayerId = this.current;
+    if (this.previous === "") {
+      this.first = playerId;
+    } else {
+      players[this.previous].nextPlayerId = playerId;
     }
   }
 }

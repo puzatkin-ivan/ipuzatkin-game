@@ -10,4 +10,13 @@ export class Block {
     this.width = width;
     this.height = height;
   }
+
+  serialization(): object{
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+    }
+  }
 }

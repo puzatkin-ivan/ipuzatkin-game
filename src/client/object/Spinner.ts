@@ -20,17 +20,17 @@ export class Spinner{
 
   move(deltaTime: number) {
     const SPEED = 100;
-    const deltaMove = SPEED * deltaTime / 1000;
-    const coefficient = 4.3/5;
-    const sqrt2 = Math.sqrt(2);
+    const deltaMove = SPEED * deltaTime / 2000;
+    const coefficient = 2.5/4.3;
+    const sqrt2 = (deltaMove + deltaMove * coefficient) / Math.sqrt(2);
     if (this.direction === Direction.UP) {
-      this.x += deltaMove / sqrt2 / 2;
-      this.y -= deltaMove / sqrt2 * coefficient;
+      this.x += deltaMove * coefficient;
+      this.y -= deltaMove;
     } else if (this.direction === Direction.DOWN) {
-      this.x += deltaMove/ sqrt2  / 2;
-      this.y += deltaMove / sqrt2 * coefficient;
+      this.x += deltaMove * coefficient;
+      this.y += deltaMove;
     } else {
-      this.x -= deltaMove * 0.74;
+      this.x -= sqrt2;
     }
 
     if (this.x > Spinner.X1 && this.direction === Direction.UP) {

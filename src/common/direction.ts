@@ -1,5 +1,5 @@
 export enum Direction {
-  Close = "",
+  NO = "no_direction",
   UP = "direction_up",
   LEFT = "direction_left",
   RIGHT = "direction_right",

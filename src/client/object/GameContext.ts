@@ -5,7 +5,7 @@ export class GameContext {
 
   constructor() {
     this.players = {};
-    this.blocks = {};
+    this.blocks = [];
     this.bullets = [];
   }
 }

@@ -1,7 +1,7 @@
 import {GameContext} from "./GameContext";
-import {Block} from "./Block";
 import {GameField} from "../../client/object/GameField";
-import {Direction} from "../direction";
+import {Direction} from "../../common/direction";
+import {Parameters} from "../../common/parameters";
 
 export class Bullet {
   public x: number;
@@ -20,6 +20,13 @@ export class Bullet {
     this._direction = Direction.RIGHT;
   }
 
+  serialization(): object {
+    return {
+      x: this.x,
+      y: this.y,
+    }
+  }
+
   setDirection(gameContext: GameContext) {
     const player = gameContext.players[this._playerId];
     if (player.direction === Direction.UP) {
@@ -35,7 +42,7 @@ export class Bullet {
 
   move(deltaTime: number) {
     if (!this.isDead) {
-      const SPEED = 400;
+      const SPEED = Parameters.SPEED_BULLET;
       const deltaMove: number = SPEED * deltaTime / 1000;
       if (this._direction === Direction.LEFT) {
         this.x -= deltaMove;
@@ -51,19 +58,19 @@ export class Bullet {
 
   collision(gameContext: GameContext) {
 
-    if (this.x <= 0 && this.x >= GameField.WIDTH_CANVAS || this.y <= 0 && this.y >= GameField.HEIGHT_CANVAS) {
+    if (this.x < 0 || this.x > GameField.WIDTH_CANVAS || this.y < 0 || this.y > GameField.HEIGHT_CANVAS) {
       this.isDead = true;
     }
 
     if (!this.isDead) {
-      for (const block of Object.keys(gameContext.blocks)) {
-        const intervalForX: boolean = this.x <= gameContext.blocks[block].x + Block.WIDTH && this.x + Bullet.WIDTH >= gameContext.blocks[block].x;
+      for (const block of gameContext.blocks) {
+        const intervalForX: boolean = this.x <= block.x + block.width && this.x + Bullet.WIDTH >= block.x;
 
         if (intervalForX) {
-          if (this.y + Bullet.HEIGHT >= gameContext.blocks[block].y && this.y + Bullet.HEIGHT < gameContext.blocks[block].y + Block.HEIGHT) {
+          if (this.y + Bullet.HEIGHT >= block.y && this.y + Bullet.HEIGHT < block.y + block.height) {
             this.isDead = true;
             break;
-          } else if (this.y > gameContext.blocks[block].y && this.y < gameContext.blocks[block].y + Block.HEIGHT) {
+          } else if (this.y > block.y && this.y < block.y + block.height) {
             this.isDead = true;
             break;
           }
@@ -77,15 +84,19 @@ export class Bullet {
         if (gameContext.players[shooter] != gameContext.players[this._playerId]) {
           if (intervalForX) {
             if (this.y + Bullet.HEIGHT > gameContext.players[shooter].y && this.y + Bullet.HEIGHT < gameContext.players[shooter].y + player.height) {
-              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 10, 0);
+              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 25, 0);
               this.isDead = true;
-              break;
             } else if (this.y > gameContext.players[shooter].y && this.y < gameContext.players[shooter].y + player.height) {
-              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 10, 0);
+              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 25, 0);
               this.isDead = true;
-              break;
             }
           }
+        }
+        if (gameContext.players[shooter].health === 0 && !gameContext.players[shooter].isDead) {
+          gameContext.players[shooter].isDead = true;
+          gameContext.players[shooter].checkTime = Date.now();
+          gameContext.players[shooter].dead += 1;
+          gameContext.players[this._playerId].frag += 1;
         }
       }
     }

@@ -1,5 +1,4 @@
 import {Shooter} from "../object/Shooter";
-import {Block} from "../object/Block";
 import {GameField} from "../../client/object/GameField";
 import {GameContext} from "../object/GameContext";
 
@@ -26,22 +25,22 @@ function collisionBlockAndPlayer(player: Shooter, BlocksMap) {
   const yPlayer2 = player.y + player.height / 2;
 
   for (const block of BlocksMap) {
-    const intervalForY = yPlayer1 < block.y + Block.HEIGHT && yPlayer2> block.y;
-    const intervalForX = xPlayer1 < block.x + Block.WIDTH && xPlayer2 > block.x;
+    const intervalForY = yPlayer1 < block.y + block.height && yPlayer2> block.y;
+    const intervalForX = xPlayer1 < block.x + block.width && xPlayer2 > block.x;
 
 
     if (intervalForX) {
-      if (yPlayer2 > block.y && yPlayer2 < block.y + 0.3 * Block.HEIGHT) {
+      if (yPlayer2 > block.y && yPlayer2 < block.y + 0.3 * block.height) {
         player.y = block.y - player.height / 2;
-      } else if (yPlayer1 > block.y + 0.7 * Block.HEIGHT && yPlayer1 < block.y + Block.HEIGHT) {
-        player.y = block.y + Block.HEIGHT + player.height / 2;
+      } else if (yPlayer1 > block.y + 0.7 * block.height && yPlayer1 < block.y + block.height) {
+        player.y = block.y + block.height + player.height / 2;
       }
     }
     if (intervalForY) {
-      if (xPlayer2 >= block.x && xPlayer2 <= block.x + 0.2 * Block.WIDTH) {
+      if (xPlayer2 >= block.x && xPlayer2 <= block.x + 0.2 * block.width) {
         player.x = block.x - player.width / 2;
-      } else if (xPlayer1 >= block.x + 0.8 * Block.WIDTH && xPlayer1 <= block.x + Block.WIDTH) {
-        player.x = block.x + Block.WIDTH + player.width / 2;
+      } else if (xPlayer1 >= block.x + 0.8 * block.width && xPlayer1 <= block.x + block.width) {
+        player.x = block.x + block.width + player.width / 2;
       }
     }
   }

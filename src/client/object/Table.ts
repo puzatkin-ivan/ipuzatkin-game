@@ -1,15 +1,13 @@
-import {GameContext} from "./GameContext";
-
 export class Table {
-  public first: string;
+  public players;
   public isShowTable: boolean;
 
   constructor() {
-    this.first = "";
+    this.players = [];
     this.isShowTable = false;
   }
 
-  draw(canvasContext: CanvasRenderingContext2D, gameContext: GameContext, clientId: string) {
+  draw(canvasContext: CanvasRenderingContext2D, nicknameClient: string) {
     if (this.isShowTable) {
       canvasContext.fillStyle = "rgba(0, 0, 0, 0.7)";
       canvasContext.fillRect(200, 100, 1100, 400);
@@ -25,18 +23,16 @@ export class Table {
 
       let numberPlayer = 0;
       let yPlayer = 200;
-      const players = gameContext.players;
 
-      for (const playerId of Object.keys(players)) {
-        const player = players[playerId];
+      for (const player of this.players) {
         numberPlayer++;
 
-        if (playerId === clientId) {
+        if (player.nickname === nicknameClient) {
           canvasContext.fillStyle = "#38ff16";
         } else {
           canvasContext.fillStyle = "#4663ff";
         }
-        canvasContext.fillText("" + numberPlayer + "" + ". " + players[playerId].nickname, 300, yPlayer);
+        canvasContext.fillText("" + numberPlayer + "" + ". " + player.nickname, 300, yPlayer);
 
         if (player.isDead) {
           canvasContext.fillText("Dead", 600, yPlayer);

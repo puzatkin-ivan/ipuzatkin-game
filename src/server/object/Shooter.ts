@@ -10,7 +10,7 @@ export class Shooter {
   public health: number;
   public frag: number;
   public dead: number;
-  public coefficient: number;
+  public score: number;
   public isShooting: boolean;
   public isDead: boolean;
   public isShowTable: boolean;
@@ -19,7 +19,6 @@ export class Shooter {
   public height = Parameters.HEIGHT_SHOOTER;
   public direction: Direction;
   public playerId: string;
-  public nextPlayerId: string;
   public nickname: string;
   private keyMap: KeyMap;
   private _lastFireTimeStamp = Date.now();
@@ -33,27 +32,32 @@ export class Shooter {
     this.frag = 0;
     this.dead = 0;
     this.playerId = playerId;
-    this.nextPlayerId = "";
     this.isShooting = false;
     this.isDead = false;
     this.isShowTable = false;
     this.direction = Direction.RIGHT;
     this.checkTime = Date.now();
-    this.coefficient = 0;
+    this.score = 0;
   }
 
-  serialization(): object {
+  serializationForDraw(): object {
     return {
       x: this.x,
       y: this.y,
       isDead: this.isDead,
       health: this.health,
-      frag: this.frag,
-      dead: this.dead,
-      coefficient: this.coefficient,
       direction: this.direction,
       nickname: this.nickname,
-      nextPlayerId: this.nextPlayerId,
+    }
+  }
+
+  serializationForTable(): object {
+    return {
+      frag: this.frag,
+      dead: this.dead,
+      score: this.score,
+      isDead: this.isDead,
+      nickname: this.nickname
     }
   }
 
@@ -165,18 +169,16 @@ export class Shooter {
   initializationData() {
     if (this.frag == 0) {
       if (this.dead == 0) {
-        this.coefficient = 0;
+        this.score = 0;
       } else {
-        this.coefficient = 1 / this.dead;
+        this.score = 1 / this.dead;
       }
     } else {
       if (this.dead == 0) {
-        this.coefficient = this.frag;
+        this.score = this.frag;
       } else {
-        this.coefficient = this.frag / this.dead;
+        this.score = this.frag / this.dead;
       }
     }
-
-    this.nextPlayerId = "";
   }
 }

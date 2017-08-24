@@ -4,10 +4,10 @@ import {gameLoop} from "./processes/gameLoop";
 import {Table} from "./object/Table";
 
 export namespace GameClient {
-  function sendNickname(socket: WebSocket, idClient: string) {
+  function sendNickname(socket: WebSocket, nicknameClient: string) {
     const nickname = {
       type: "nickname",
-      id: idClient,
+      id: nicknameClient,
     };
 
     socket.send(JSON.stringify(nickname))
@@ -35,7 +35,7 @@ export namespace GameClient {
   export function initGame(socket: WebSocket, nickname: string) {
     let gameContext: GameContext = new GameContext();
     let table: Table = new Table();
-    let idClient: string;
+    let id: string;
     const canvas = <HTMLCanvasElement>document.getElementById("canvas");
     const canvasContext: CanvasRenderingContext2D = canvas.getContext("2d");
 
@@ -59,24 +59,16 @@ export namespace GameClient {
     socket.onmessage = (messageEvent: MessageEvent) => {
       const message = JSON.parse(messageEvent.data);
       switch (message.type) {
-        case "message for first client":
-          gameContext.blocks = message.gameContext.blocks;
-          gameContext.players = message.gameContext.players;
-          gameContext.bullets = message.gameContext.bullets;
-          table.first = message.gameContext.first;
-          idClient = message.id;
-        break;
         case "message for new client":
           gameContext.blocks = message.gameContext.blocks;
           gameContext.players = message.gameContext.players;
           gameContext.bullets = message.gameContext.bullets;
-          table.first = message.first;
-          idClient = message.id;
+          id = message.id;
         break;
         case "update data":
-          gameContext.players = message.players;
+          gameContext.players = message.playersForDraw;
+          table.players = message.playersForTable;
           gameContext.bullets = message.bullets;
-          table.first = message.first;
         break;
       }
     };
@@ -86,7 +78,7 @@ export namespace GameClient {
     };
 
     setInterval(() => {
-      gameLoop(canvasContext, gameContext, table, idClient);
+      gameLoop(canvasContext, gameContext, table, id, nickname);
     }, 1000 / 60);
   }
 }

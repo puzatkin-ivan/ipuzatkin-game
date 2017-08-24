@@ -14,12 +14,12 @@ export namespace GameServer {
 
   let gameContext: GameContext = new GameContext();
 
-  function sendMessage(players: any, bullets: any) {
+  function sendMessage(playersForDraw: any, playersForTable: any, bullets: any) {
     return {
       type: "update data",
-      players: players,
+      playersForDraw: playersForDraw,
+      playersForTable: playersForTable,
       bullets: bullets,
-      first: gameContext.table.first,
     }
   }
 
@@ -30,7 +30,8 @@ export namespace GameServer {
       const deltaTime = currentTimeFrame - lastTimeFrame;
       lastTimeFrame = currentTimeFrame;
 
-      let players = {};
+      let playersForDraw = {};
+      let playersForTable = [];
       for (const playerId of Object.keys(gameContext.players)) {
         const player = gameContext.players[playerId];
         if (player.health != 0) {
@@ -42,7 +43,8 @@ export namespace GameServer {
           player.checkTime = Date.now();
         }
         player.initializationData();
-        players[playerId] = player.serialization();
+        playersForDraw[playerId] = player.serializationForDraw();
+        playersForTable.push(player.serializationForTable());
       }
 
       let bullets = [];
@@ -55,7 +57,19 @@ export namespace GameServer {
 
         bullets.push(bullet.serialization());
       }
-      broadcast(socketServer, JSON.stringify(sendMessage(players, bullets)));
+
+      playersForTable.sort((playerOne, playerTwo) => {
+        const scoreOne = playerOne.score;
+        const scoreTwo = playerTwo.score;
+        if (scoreOne > scoreTwo) {
+          return -1;
+        }
+        if (scoreOne < scoreTwo) {
+          return 1
+        }
+        return 0;
+      });
+      broadcast(socketServer, JSON.stringify(sendMessage(playersForDraw, playersForTable, bullets)));
     }, 1000/60);
   }
 
@@ -69,43 +83,18 @@ export namespace GameServer {
       const numberPlace = countShooter % 10;
       gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y, shooter);
 
-      const lengthPlayers = () => {
-        let count = 0;
-        let lastPlayer: string;
-        for (const element of Object.keys(gameContext.players)) {
-          count++;
-          lastPlayer = element;
-        }
-
-        if (count > 1) {
-          gameContext.players[lastPlayer].nextPlayerId = shooter;
-          return false;
-        } else {
-          gameContext.table.first = shooter;
-          return true;
-        }
-      };
 
       const sendInitialMessage = (gameContext: GameContext) => {
-        if (lengthPlayers()) {
-          return {
-            type: "message for first client",
-            gameContext: gameContext.serialization(),
-            id: shooter,
-          }
-        } else {
-          return {
-            type: "message for new client",
-            gameContext: gameContext.serialization(),
-            id: shooter,
-          }
+        return {
+          type: "message for new client",
+          gameContext: gameContext.serialization(),
+          id: shooter,
         }
       };
 
       client.send(JSON.stringify(sendInitialMessage(gameContext)));
 
       client.on("close", () => {
-        gameContext.table.first = gameContext.players[shooter].nextPlayerId;
         delete gameContext.players[shooter];
         broadcast(socketServer, JSON.stringify(gameContext));
       });

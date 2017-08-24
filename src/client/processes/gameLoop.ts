@@ -15,8 +15,9 @@ const spinners = [
 ];
 
 let lastTimeFrame = Date.now();
+let timeDead = Date.now();
 
-export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: GameContext, table: Table, playerId: string) =>  {
+export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: GameContext, table: Table, playerId: string, nicknameClient: string) =>  {
   GameField.draw(canvasContext);
   for (const item of gameContext.blocks) {
     const block = new Block(item.x, item.y, item.width, item.height);
@@ -33,19 +34,22 @@ export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: G
     player.draw(canvasContext, playerId);
     player.drawGun(canvasContext);
   }
-
   if (gameContext.players[playerId].isDead) {
-    GameOver.draw(canvasContext);
     const currentTimeFrame = Date.now();
     const deltaTime = currentTimeFrame - lastTimeFrame;
     lastTimeFrame = currentTimeFrame;
-    if (GameOver.initialization()) {
+    GameOver.time = currentTimeFrame - timeDead;
+    GameOver.draw(canvasContext);
+    if (GameOver.time < 3000) {
       for (const spinner of spinners) {
         spinner.move(deltaTime);
         spinner.draw(canvasContext);
       }
     }
+  } else {
+    timeDead = Date.now();
+    lastTimeFrame = timeDead;
   }
 
-  table.draw(canvasContext, gameContext, playerId);
+  table.draw(canvasContext, nicknameClient);
 };

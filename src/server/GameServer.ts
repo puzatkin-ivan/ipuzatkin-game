@@ -1,7 +1,8 @@
 import WebSocket = require("ws");
 import {Shooter} from "./object/Shooter";
-import {gamePhysics} from "./processes/gamePhysics";
 import {GameContext} from "./object/GameContext";
+import {MessageTypes} from "../common/messageTypes";
+import {gameLoop} from "./processes/gameLoop";
 
 export namespace GameServer {
   function broadcast(socketServer: WebSocket.Server, data: any) {
@@ -12,18 +13,16 @@ export namespace GameServer {
     });
   }
 
-  let gameContext: GameContext = new GameContext();
-
-  function sendMessage(playersForDraw: any, playersForTable: any, bullets: any) {
+  function createMessage(playersForDraw: any, playersForTable: any, bullets: any) {
     return {
-      type: "update data",
+      type: MessageTypes.UPDATE_DATA,
       playersForDraw: playersForDraw,
       playersForTable: playersForTable,
       bullets: bullets,
     }
   }
 
-  function startGameServer(socketServer: WebSocket.Server) {
+  function startGameServer(socketServer: WebSocket.Server, gameContext: GameContext) {
     let lastTimeFrame = Date.now();
     setInterval(() => {
       const currentTimeFrame = Date.now();
@@ -32,70 +31,38 @@ export namespace GameServer {
 
       let playersForDraw = {};
       let playersForTable = [];
-      for (const playerId of Object.keys(gameContext.players)) {
-        const player = gameContext.players[playerId];
-        if (player.health != 0) {
-          player.setDirection();
-          player.move(deltaTime);
-          gamePhysics(gameContext, playerId);
-          player.fire(gameContext);
-        } else if (!player.isDead) {
-          player.checkTime = Date.now();
-        }
-        player.initializationData();
-        playersForDraw[playerId] = player.serializationForDraw();
-        playersForTable.push(player.serializationForTable());
-      }
-
       let bullets = [];
-      for (const bullet of gameContext.bullets) {
-        bullet.move(deltaTime);
-        bullet.collision(gameContext);
-        if (bullet.isDead) {
-          gameContext.bullets.splice(gameContext.bullets.indexOf(bullet), 1);
-        }
+      gameLoop(gameContext, deltaTime, playersForDraw, playersForTable, bullets);
 
-        bullets.push(bullet.serialization());
-      }
-
-      playersForTable.sort((playerOne, playerTwo) => {
-        const scoreOne = playerOne.score;
-        const scoreTwo = playerTwo.score;
-        if (scoreOne > scoreTwo) {
-          return -1;
-        }
-        if (scoreOne < scoreTwo) {
-          return 1
-        }
-        return 0;
-      });
-      broadcast(socketServer, JSON.stringify(sendMessage(playersForDraw, playersForTable, bullets)));
+      broadcast(socketServer, JSON.stringify(createMessage(playersForDraw, playersForTable, bullets)));
     }, 1000/60);
   }
 
   export function initGameServer(socketServer: WebSocket.Server) {
-    startGameServer(socketServer);
+    let gameContext: GameContext = new GameContext();
+    startGameServer(socketServer, gameContext);
 
     let countShooter = 0;
     socketServer.on('connection', (client: WebSocket) => {
       countShooter += 1;
-      const shooter = "shooter" + countShooter;
+      const shooterId = "shooter" + countShooter;
       const numberPlace = countShooter % 10;
-      gameContext.players[shooter] = new Shooter(GameContext.INITIAL_COORDINATES[numberPlace].x, GameContext.INITIAL_COORDINATES[numberPlace].y, shooter);
-
+      const x = GameContext.INITIAL_COORDINATES[numberPlace].x;
+      const y = GameContext.INITIAL_COORDINATES[numberPlace].y;
+      gameContext.players[shooterId] = new Shooter(x, y, shooterId);
 
       const sendInitialMessage = (gameContext: GameContext) => {
         return {
-          type: "message for new client",
+          type: MessageTypes.NEW_CLIENT,
           gameContext: gameContext.serialization(),
-          id: shooter,
+          id: shooterId,
         }
       };
 
       client.send(JSON.stringify(sendInitialMessage(gameContext)));
 
       client.on("close", () => {
-        delete gameContext.players[shooter];
+        delete gameContext.players[shooterId];
         broadcast(socketServer, JSON.stringify(gameContext));
       });
 
@@ -103,10 +70,10 @@ export namespace GameServer {
         const data = JSON.parse(message);
         switch (data.type) {
           case "nickname":
-            gameContext.players[shooter].nickname = data.id;
+            gameContext.players[shooterId].nickname = data.id;
           break;
           case "keyMap":
-            gameContext.players[shooter].updateKeyMap(data);
+            gameContext.players[shooterId].updateKeyMap(data);
           break;
         }
       });

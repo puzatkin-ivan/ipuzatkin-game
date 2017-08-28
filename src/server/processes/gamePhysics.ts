@@ -1,10 +1,9 @@
 import {Shooter} from "../object/Shooter";
 import {GameField} from "../../client/object/GameField";
-import {GameContext} from "../object/GameContext";
 
-export function gamePhysics(gameContext: GameContext, playerId: string) {
-  collisionBorderAndPlayer(gameContext.players[playerId]);
-  collisionBlockAndPlayer(gameContext.players[playerId], gameContext.blocks);
+export function gamePhysics(player: Shooter, blocks: any) {
+  collisionBorderAndPlayer(player);
+  collisionBlockAndPlayer(player, blocks);
 }
 
 function collisionBorderAndPlayer(player: Shooter) {

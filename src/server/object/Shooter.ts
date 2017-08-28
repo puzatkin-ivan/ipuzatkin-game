@@ -8,29 +8,28 @@ export class Shooter {
   public x: number;
   public y: number;
   public health: number;
-  public frag: number;
-  public dead: number;
+  public killCount: number;
+  public deathCount: number;
   public score: number;
   public isShooting: boolean;
   public isDead: boolean;
   public isShowTable: boolean;
   public checkTime: number;
-  public width = Parameters.WIDTH_SHOOTER;
-  public height = Parameters.HEIGHT_SHOOTER;
+  public width = 30;
+  public height = 30;
   public direction: Direction;
   public playerId: string;
   public nickname: string;
   private keyMap: KeyMap;
   private _lastFireTimeStamp = Date.now();
 
-
   constructor(x: number, y: number, playerId: string) {
     this.x = x;
     this.y = y;
     this.keyMap = new KeyMap();
     this.health = 100;
-    this.frag = 0;
-    this.dead = 0;
+    this.killCount = 0;
+    this.deathCount = 0;
     this.playerId = playerId;
     this.isShooting = false;
     this.isDead = false;
@@ -53,8 +52,8 @@ export class Shooter {
 
   serializationForTable(): object {
     return {
-      frag: this.frag,
-      dead: this.dead,
+      killCount: this.killCount,
+      deathCount: this.deathCount,
       score: this.score,
       isDead: this.isDead,
       nickname: this.nickname
@@ -92,26 +91,13 @@ export class Shooter {
           this.keyMap.key.arrowDown.isPressed = keyMap.isPressed;
           this.isShooting = keyMap.isPressed;
           break;
-        case this.keyMap.key.keyTab.code:
-          this.isShowTable = keyMap.isPressed;
-          break;
       }
-    } else {
-      if (keyMap.isPressed) {
-        const currentTime = Date.now();
-        const deltaTime = currentTime - this.checkTime;
-        if (deltaTime > 3000) {
-          this.health = 100;
-          this.x = GameContext.INITIAL_COORDINATES[Math.floor(10 * Math.random())].x;
-          this.y = GameContext.INITIAL_COORDINATES[Math.floor(10 * Math.random())].y;
-          this.isDead = false;
-          this.keyMap = new KeyMap();
-        }
-      }
+    } else if (keyMap.isPressed) {
+      this.respawn();
     }
   }
 
-  setDirection() {
+  updateDirection() {
     if (this.keyMap.key.arrowUp.isPressed) {
       this.direction = Direction.UP;
     } else if (this.keyMap.key.arrowDown.isPressed) {
@@ -126,59 +112,74 @@ export class Shooter {
   move(deltaTime: number) {
     const SPEED = Parameters.SPEED_PLAYER;
     const deltaMove = SPEED * deltaTime / 1000;
+    const singleDirectionMove = deltaMove;
+    const multiDirectionMove = deltaMove / Math.sqrt(2);
 
     if (this.keyMap.key.keyW.isPressed) {
       if (this.keyMap.key.keyA.isPressed) {
-        this.y -= deltaMove / Math.sqrt(2);
-        this.x -= deltaMove / Math.sqrt(2);
+        this.y -= multiDirectionMove;
+        this.x -= multiDirectionMove;
       } else if (this.keyMap.key.keyD.isPressed) {
-        this.y -= deltaMove / Math.sqrt(2);
-        this.x += deltaMove / Math.sqrt(2);
+        this.y -= multiDirectionMove;
+        this.x += multiDirectionMove;
       } else {
-        this.y -= deltaMove;
+        this.y -= singleDirectionMove;
       }
     } else if (this.keyMap.key.keyS.isPressed) {
       if (this.keyMap.key.keyA.isPressed) {
-        this.y += deltaMove / Math.sqrt(2);
-        this.x -= deltaMove / Math.sqrt(2);
+        this.y += multiDirectionMove;
+        this.x -= multiDirectionMove;
       } else if (this.keyMap.key.keyD.isPressed) {
-        this.y += deltaMove / Math.sqrt(2);
-        this.x += deltaMove / Math.sqrt(2);
+        this.y += multiDirectionMove;
+        this.x += multiDirectionMove;
       } else {
-        this.y += deltaMove;
+        this.y += singleDirectionMove;
       }
     } else if (this.keyMap.key.keyA.isPressed) {
-      this.x -= deltaMove;
+      this.x -= singleDirectionMove;
     } else if (this.keyMap.key.keyD.isPressed) {
-      this.x += deltaMove;
+      this.x += singleDirectionMove;
     }
   }
 
-  fire(gameContext: GameContext) {
+  fire(bullets: any) {
     if (this.isShooting) {
       const FIRE_DELAY = Parameters.FIRE_DELAY;
       const currentTimeStamp = Date.now();
-      if ((currentTimeStamp - this._lastFireTimeStamp) > FIRE_DELAY) {
+      const deltaTime = currentTimeStamp - this._lastFireTimeStamp;
+      if (deltaTime > FIRE_DELAY) {
         this._lastFireTimeStamp = currentTimeStamp;
-        gameContext.bullets.push(new Bullet(this.x, this.y, this.playerId));
-        gameContext.bullets[gameContext.bullets.length - 1].setDirection(gameContext);
+        bullets.push(new Bullet(this.x, this.y, this.direction, this.playerId));
       }
     }
   }
 
-  initializationData() {
-    if (this.frag == 0) {
-      if (this.dead == 0) {
-        this.score = 0;
+  updateScore() {
+    if (this.killCount == 0) {
+      if (this.deathCount == 0) {
+        this.score = -1;
       } else {
-        this.score = 1 / this.dead;
+        this.score = 0;
       }
     } else {
-      if (this.dead == 0) {
-        this.score = this.frag;
+      if (this.deathCount == 0) {
+        this.score = this.killCount;
       } else {
-        this.score = this.frag / this.dead;
+        this.score = this.killCount / this.deathCount;
       }
+    }
+  }
+
+  respawn() {
+    const currentTime = Date.now();
+    const deltaTime = currentTime - this.checkTime;
+    if (deltaTime > 3000) {
+      this.health = 100;
+      const numberPlace = Math.floor(10 * Math.random());
+      this.x = GameContext.INITIAL_COORDINATES[numberPlace].x;
+      this.y = GameContext.INITIAL_COORDINATES[numberPlace].y;
+      this.isDead = false;
+      this.keyMap = new KeyMap();
     }
   }
 }

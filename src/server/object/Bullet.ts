@@ -12,31 +12,18 @@ export class Bullet {
   private _playerId: string;
   private _direction: Direction;
 
-  constructor(x: number, y: number, playerId: string) {
+  constructor(x: number, y: number, direction: Direction, playerId: string) {
     this.x = x;
     this.y = y;
     this._playerId = playerId;
     this.isDead = false;
-    this._direction = Direction.RIGHT;
+    this._direction = direction;
   }
 
   serialization(): object {
     return {
       x: this.x,
       y: this.y,
-    }
-  }
-
-  setDirection(gameContext: GameContext) {
-    const player = gameContext.players[this._playerId];
-    if (player.direction === Direction.UP) {
-      this._direction = Direction.UP;
-    } else if (player.direction === Direction.DOWN) {
-      this._direction = Direction.DOWN;
-    } else if (player.direction === Direction.LEFT) {
-      this._direction = Direction.LEFT;
-    } else if (player.direction === Direction.RIGHT) {
-      this._direction = Direction.RIGHT;
     }
   }
 
@@ -57,7 +44,6 @@ export class Bullet {
   }
 
   collision(gameContext: GameContext) {
-
     if (this.x < 0 || this.x > GameField.WIDTH_CANVAS || this.y < 0 || this.y > GameField.HEIGHT_CANVAS) {
       this.isDead = true;
     }
@@ -84,10 +70,10 @@ export class Bullet {
         if (gameContext.players[shooter] != gameContext.players[this._playerId]) {
           if (intervalForX) {
             if (this.y + Bullet.HEIGHT > gameContext.players[shooter].y && this.y + Bullet.HEIGHT < gameContext.players[shooter].y + player.height) {
-              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 25, 0);
+              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - Parameters.DAMAGE_BULLET, 0);
               this.isDead = true;
             } else if (this.y > gameContext.players[shooter].y && this.y < gameContext.players[shooter].y + player.height) {
-              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - 25, 0);
+              gameContext.players[shooter].health = Math.max(gameContext.players[shooter].health - Parameters.DAMAGE_BULLET, 0);
               this.isDead = true;
             }
           }
@@ -95,8 +81,8 @@ export class Bullet {
         if (gameContext.players[shooter].health === 0 && !gameContext.players[shooter].isDead) {
           gameContext.players[shooter].isDead = true;
           gameContext.players[shooter].checkTime = Date.now();
-          gameContext.players[shooter].dead += 1;
-          gameContext.players[this._playerId].frag += 1;
+          gameContext.players[shooter].deathCount += 1;
+          gameContext.players[this._playerId].killCount += 1;
         }
       }
     }

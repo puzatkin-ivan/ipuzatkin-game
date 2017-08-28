@@ -1,11 +1,9 @@
-import {Parameters} from "../../common/parameters";
-
 export class Shooter {
   private _x: number;
   private _y: number;
   private _health: number;
-  private _height = Parameters.HEIGHT_SHOOTER;
-  private _width = Parameters.WIDTH_SHOOTER;
+  private _height = 30;
+  private _width = 30;
   private _direction: string;
   private _playerId: string;
   private _nickname: string;

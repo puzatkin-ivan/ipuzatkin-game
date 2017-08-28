@@ -2,11 +2,12 @@ import {GameField} from "./object/GameField";
 import {GameContext} from "./object/GameContext";
 import {gameLoop} from "./processes/gameLoop";
 import {Table} from "./object/Table";
+import {MessageTypes} from "../common/messageTypes";
 
 export namespace GameClient {
   function sendNickname(socket: WebSocket, nicknameClient: string) {
     const nickname = {
-      type: "nickname",
+      type: MessageTypes.NICKNAME,
       id: nicknameClient,
     };
 
@@ -18,7 +19,7 @@ export namespace GameClient {
       table.isShowTable = isPressed;
     } else {
       return {
-        type: "keyMap",
+        type: MessageTypes.KEY_MAP,
         key: keyboardEvent.keyCode,
         isPressed: isPressed,
       };
@@ -59,13 +60,13 @@ export namespace GameClient {
     socket.onmessage = (messageEvent: MessageEvent) => {
       const message = JSON.parse(messageEvent.data);
       switch (message.type) {
-        case "message for new client":
+        case MessageTypes.NEW_CLIENT:
           gameContext.blocks = message.gameContext.blocks;
           gameContext.players = message.gameContext.players;
           gameContext.bullets = message.gameContext.bullets;
           id = message.id;
           break;
-        case "update data":
+        case MessageTypes.UPDATE_DATA:
           gameContext.players = message.playersForDraw;
           table.players = message.playersForTable;
           gameContext.bullets = message.bullets;

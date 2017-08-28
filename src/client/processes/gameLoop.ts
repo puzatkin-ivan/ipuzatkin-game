@@ -40,7 +40,7 @@ export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: G
     lastTimeFrame = currentTimeFrame;
     GameOver.time = currentTimeFrame - timeDead;
     GameOver.draw(canvasContext);
-    if (GameOver.time < 3000) {
+    if (GameOver.time < GameOver.timeBeforeRespawn) {
       for (const spinner of spinners) {
         spinner.move(deltaTime);
         spinner.draw(canvasContext);

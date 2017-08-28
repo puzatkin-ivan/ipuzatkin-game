@@ -39,8 +39,8 @@ export class Table {
         } else {
           canvasContext.fillText("Alive", 600, yPlayer);
         }
-        canvasContext.fillText("" + player.frag, 920, yPlayer);
-        canvasContext.fillText("" + player.dead, 1125, yPlayer);
+        canvasContext.fillText("" + player.killCount, 920, yPlayer);
+        canvasContext.fillText("" + player.deathCount, 1125, yPlayer);
 
         yPlayer += 30;
       }

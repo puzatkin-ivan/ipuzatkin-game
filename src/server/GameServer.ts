@@ -1,28 +1,9 @@
-import WebSocket = require("ws");
 import {Shooter} from "./object/Shooter";
 import {GameContext} from "./object/GameContext";
-import {MessageTypes} from "../common/messageTypes";
 import {gameLoop} from "./processes/gameLoop";
 
 export namespace GameServer {
-  function broadcast(socketServer: WebSocket.Server, data: any) {
-    socketServer.clients.forEach((client: WebSocket) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(data);
-      }
-    });
-  }
-
-  function createMessage(playersForDraw: any, playersForTable: any, bullets: any) {
-    return {
-      type: MessageTypes.UPDATE_DATA,
-      playersForDraw: playersForDraw,
-      playersForTable: playersForTable,
-      bullets: bullets,
-    }
-  }
-
-  function startGameServer(socketServer: WebSocket.Server, gameContext: GameContext) {
+  function startGameServer(socketServer: SocketIO.Server, gameContext: GameContext) {
     let lastTimeFrame = Date.now();
     setInterval(() => {
       const currentTimeFrame = Date.now();
@@ -34,49 +15,38 @@ export namespace GameServer {
       let bullets = [];
       gameLoop(gameContext, deltaTime, playersForDraw, playersForTable, bullets);
 
-      broadcast(socketServer, JSON.stringify(createMessage(playersForDraw, playersForTable, bullets)));
+      socketServer.sockets.emit("update_data", gameContext.serialization())
     }, 1000/60);
   }
 
-  export function initGameServer(socketServer: WebSocket.Server) {
+  export function initGameServer(socketServer: SocketIO.Server) {
     let gameContext: GameContext = new GameContext();
     startGameServer(socketServer, gameContext);
 
     let countShooter = 0;
-    socketServer.on('connection', (client: WebSocket) => {
+    socketServer.on('connection', (client: SocketIO.Socket) => {
       countShooter += 1;
-      const shooterId = "shooter" + countShooter;
+      const shooterId = client.id;
       const numberPlace = countShooter % 10;
       const x = GameContext.INITIAL_COORDINATES[numberPlace].x;
       const y = GameContext.INITIAL_COORDINATES[numberPlace].y;
+
       gameContext.players[shooterId] = new Shooter(x, y, shooterId);
+      client.emit("new_player", gameContext.serialization());
 
-      const sendInitialMessage = (gameContext: GameContext) => {
-        return {
-          type: MessageTypes.NEW_CLIENT,
-          gameContext: gameContext.serialization(),
-          id: shooterId,
-        }
-      };
-
-      client.send(JSON.stringify(sendInitialMessage(gameContext)));
-
-      client.on("close", () => {
+      client.on("disconnect", () => {
         delete gameContext.players[shooterId];
-        broadcast(socketServer, JSON.stringify(gameContext));
+        client.broadcast.emit("", gameContext.serialization());
       });
 
-      client.on("message", (message: any) => {
-        const data = JSON.parse(message);
-        switch (data.type) {
-          case "nickname":
-            gameContext.players[shooterId].nickname = data.id;
-          break;
-          case "keyMap":
-            gameContext.players[shooterId].updateKeyMap(data);
-          break;
-        }
+      client.on("nickname", (data: any) => {
+        gameContext.players[shooterId].nickname = data.nickname;
       });
-    });
+
+      client.on("keyMap", (data: any) => {
+        gameContext.players[shooterId].updateKeyMap(data);
+      });
+
+    })
   }
 }

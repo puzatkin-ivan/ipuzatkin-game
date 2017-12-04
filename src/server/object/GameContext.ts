@@ -21,42 +21,59 @@ export class GameContext {
     this.players = {};
     this.bullets = [];
     this.blocks = [
-      new Block(200, 0, 50, 100),
-      new Block(0, 150, 100, 50),
-      new Block(75, 275, 100, 50),
-      new Block(250, 250, 50, 100),
-      new Block(0, 400, 150, 50),
-      new Block(250, 400, 50, 250),
-      new Block(350, 150, 100, 50),
-      new Block(400, 275, 100, 50),
-      new Block(500, 75, 50, 125),
-      new Block(550, 150, 50, 50),
-      new Block(650, 350, 50, 50),
-      new Block(550, 275, 50, 250),
-      new Block(700, 500, 150, 50),
-      new Block(750, 300, 50, 50),
-      new Block(800, 50, 50, 150),
-      new Block(850, 150, 50, 50),
-      new Block(800, 450, 50, 50),
-      new Block(1000, 500, 50, 50),
-      new Block(1350, 500, 150, 50),
-      new Block(900, 250, 100, 100),
-      new Block(925, 400, 150, 70),
-      new Block(1350, 250, 50, 150),
-      new Block(1200, 250, 100, 50),
-      new Block(1150, 150, 50, 250),
-      new Block(1150, 450, 50, 250),
+      new Block(200, 200),
+      new Block(200, 300),
+      new Block(200, 400),
+      new Block(300, 200),
+      new Block(400, 200),
+      new Block(500, 400),
+      new Block(600, 500),
+      new Block(700, 600),
+      new Block(800, 700),
+
+      new Block(800, 900),
+      new Block(700, 1000),
+      new Block(800, 1000),
+      new Block(900, 1000),
+
+      new Block(600, 1100),
+      new Block(700, 1100),
+      new Block(800, 1100),
+      new Block(900, 1100),
+      new Block(1000, 1100),
+
+      new Block(700, 1200),
+      new Block(800, 1200),
+      new Block(900, 1200),
+      new Block(800, 1300),
+      //new Block(1000, 1100),
+      /*new Block(550, 1),
+      new Block(650, 3),
+      new Block(550, 20),
+      new Block(700, 50),
+      new Block(750, 3),
+      new Block(800, 5),
+      new Block(850, 1),
+      new Block(800, 4),
+      new Block(1000, 0),
+      new Block(1350, 50),
+      new Block(900, 200),
+      new Block(925, 40),
+      new Block(1350, 50),
+      new Block(1200, 50),
+      new Block(1150, 50),
+      new Block(1150, 50),*/
     ];
   }
 
   serialization(): object {
-    let players = {};
+    let players = [];
     let bullets = [];
     let blocks = [];
 
     for (const item of Object.keys(this.players)) {
       const player = this.players[item];
-      players[item] = player.serializationForDraw();
+      players.push(player.serializationForDraw());
     }
 
     for (const bullet of this.bullets) {
@@ -67,6 +84,7 @@ export class GameContext {
       blocks.push(block.serialization());
     }
 
+    console.log('Valera nastalo tvoe vremya');
     return {
       players: players,
       bullets: bullets,

@@ -17,7 +17,7 @@ const spinners = [
 let lastTimeFrame = Date.now();
 let timeDead = Date.now();
 
-export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: GameContext, table: Table, playerId: string, nicknameClient: string) =>  {
+export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: GameContext, table: Table, playerId: any, nicknameClient: string) =>  {
   GameField.draw(canvasContext);
   for (const item of gameContext.blocks) {
     const block = new Block(item.x, item.y, item.width, item.height);
@@ -30,11 +30,12 @@ export const gameLoop = (canvasContext: CanvasRenderingContext2D, gameContext: G
   }
 
   for (const item of Object.keys(gameContext.players)) {
-    const player = new Shooter(gameContext.players[item], item);
-    player.draw(canvasContext, playerId);
+    const playerbla = gameContext.players[item];
+    const player = new Shooter(playerbla, item);
+    player.draw(canvasContext, playerId.toString());
     player.drawGun(canvasContext);
   }
-  if (gameContext.players[playerId].isDead) {
+  if (gameContext.players.playerId.isDead) {
     const currentTimeFrame = Date.now();
     const deltaTime = currentTimeFrame - lastTimeFrame;
     lastTimeFrame = currentTimeFrame;

@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "rootDir": "./src",
+    "outDir": "./bin/build",
     "lib": ["es5", "es6", "dom"]
   },
   "include": [

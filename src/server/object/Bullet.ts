@@ -6,8 +6,8 @@ import {Parameters} from "../../common/parameters";
 export class Bullet {
   public x: number;
   public y: number;
-  public static WIDTH = 10;
-  public static HEIGHT = 10;
+  public static WIDTH = 55;
+  public static HEIGHT = 55;
   public isDead: boolean;
   private _playerId: string;
   private _direction: Direction;

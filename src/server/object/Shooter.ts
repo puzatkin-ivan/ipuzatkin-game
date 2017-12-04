@@ -15,8 +15,8 @@ export class Shooter {
   public isDead: boolean;
   public isShowTable: boolean;
   public checkTime: number;
-  public width = 30;
-  public height = 30;
+  public width = 125;
+  public height = 125;
   public direction: Direction;
   public playerId: string;
   public nickname: string;
@@ -47,6 +47,7 @@ export class Shooter {
       health: this.health,
       direction: this.direction,
       nickname: this.nickname,
+      playerId: this.playerId,
     }
   }
 
@@ -92,7 +93,7 @@ export class Shooter {
           this.isShooting = keyMap.isPressed;
           break;
       }
-    } else if (keyMap.isPressed) {
+    } else if (this.checkTime > 3000) {
       this.respawn();
     }
   }
@@ -171,9 +172,7 @@ export class Shooter {
   }
 
   respawn() {
-    const currentTime = Date.now();
-    const deltaTime = currentTime - this.checkTime;
-    if (deltaTime > 3000) {
+    if (this.checkTime > 3000) {
       this.health = 100;
       const numberPlace = Math.floor(10 * Math.random());
       this.x = GameContext.INITIAL_COORDINATES[numberPlace].x;

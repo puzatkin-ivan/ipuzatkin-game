@@ -1,6 +1,6 @@
 export class GameField {
-  public static WIDTH_CANVAS = 1500;
-  public static HEIGHT_CANVAS = 600;
+  public static WIDTH_CANVAS = 5000;
+  public static HEIGHT_CANVAS = 3000;
   public static WIDTH_BORDER_GAMES_FIELD = 10;
   public static draw(context: CanvasRenderingContext2D) {
     context.beginPath();

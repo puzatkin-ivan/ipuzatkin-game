@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "amd",
-    "outFile": "./bin/client/build/bundle.js"
+    "module": "commonjs"
   },
   "files": [
     "./src/main_client.ts"

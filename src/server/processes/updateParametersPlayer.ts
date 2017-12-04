@@ -8,7 +8,7 @@ export function updateParametersPlayer(bullets: any, blocks: any, player: Shoote
     gamePhysics(player, blocks);
     player.fire(bullets);
   } else {
-    player.checkTime = Date.now();
+    player.checkTime += deltaTime;
   }
   player.updateScore();
 }

@@ -35,16 +35,15 @@ export namespace GameServer {
       countShooter += 1;
       const id = client.id;
       const shooterId = id.toString();
-      const numberPlace = countShooter % 10;
+      const numberPlace = countShooter % 1;
       const x = 500;//GameContext.INITIAL_COORDINATES[numberPlace].x;
-      const y = 500; //GameContext.INITIAL_COORDINATES[numberPlace].y;
+      const y = 600; //GameContext.INITIAL_COORDINATES[numberPlace].y;
 
       gameContext.players[shooterId] = new Shooter(x, y, shooterId);
 
       client.on("disconnect", () => {
         delete gameContext.players[shooterId];
         console.log("disconnect");
-        client.broadcast.emit("update_data", JSON.stringify(gameContext.serialization()));
       });
 
       client.on("nickname", (data: any) => {

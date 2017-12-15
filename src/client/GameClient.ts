@@ -33,9 +33,8 @@ export namespace GameClient {
 
     socket.emit("nickname", nickname);
 
-    canvas.width = GameField.WIDTH_CANVAS;
-    canvas.height = GameField.HEIGHT_CANVAS;
-
+    canvas.width = GameField.WIDTH_CANVAS / 3;
+    canvas.height = GameField.HEIGHT_CANVAS / 3;
     window.addEventListener("keydown", (keyboardEvent: KeyboardEvent) => {
       sendKey(socket, keyboardEvent, table, true);
       keyboardEvent.preventDefault();
@@ -61,13 +60,14 @@ export namespace GameClient {
 
     socket.on("update_data", (messageEvent: any) => {
       const message = JSON.parse(messageEvent);
-      console.log(message);
       gameContext.players = message.playersForDraw;
       gameContext.bullets = message.bullets;
+      table.players = message.playersForTable
     });
 
     setInterval(() => {
       gameLoop(canvasContext, gameContext, table, id, nickname);
     }, 1000 / 60);
+
   }
 }

@@ -20,6 +20,7 @@ export class Shooter {
   public direction: Direction;
   public playerId: string;
   public nickname: string;
+  public texture: number;
   private keyMap: KeyMap;
   private _lastFireTimeStamp = Date.now();
 
@@ -37,6 +38,7 @@ export class Shooter {
     this.direction = Direction.RIGHT;
     this.checkTime = Date.now();
     this.score = 0;
+    this.texture =  Math.round(1 - 0.5 + Math.random() * (4 - 1 + 1));
   }
 
   serializationForDraw(): object {
@@ -46,18 +48,20 @@ export class Shooter {
       isDead: this.isDead,
       health: this.health,
       direction: this.direction,
-      nickname: this.nickname,
+      nickname: this.nickname || "",
       playerId: this.playerId,
+      texture: this.texture,
     }
   }
 
   serializationForTable(): object {
     return {
+      playerId: this.playerId || "",
       killCount: this.killCount,
       deathCount: this.deathCount,
       score: this.score,
       isDead: this.isDead,
-      nickname: this.nickname
+      nickname: this.nickname || "",
     }
   }
 

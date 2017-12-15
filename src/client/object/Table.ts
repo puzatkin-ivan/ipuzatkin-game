@@ -10,7 +10,7 @@ export class Table {
   draw(canvasContext: CanvasRenderingContext2D, nicknameClient: string) {
     if (this.isShowTable) {
       canvasContext.fillStyle = "rgba(0, 0, 0, 0.7)";
-      canvasContext.fillRect(200, 100, 1100, 400);
+      canvasContext.fillRect(200, 100, 1100, 600);
 
       canvasContext.fillStyle = "#4663ff";
       canvasContext.font = 'bold 24px sans-serif';

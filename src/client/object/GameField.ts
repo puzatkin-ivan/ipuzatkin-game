@@ -1,6 +1,6 @@
 export class GameField {
-  public static WIDTH_CANVAS = 5000;
-  public static HEIGHT_CANVAS = 3000;
+  public static WIDTH_CANVAS = 4500;
+  public static HEIGHT_CANVAS = 2700;
   public static WIDTH_BORDER_GAMES_FIELD = 10;
   public static draw(context: CanvasRenderingContext2D) {
     context.beginPath();
@@ -9,8 +9,8 @@ export class GameField {
 
     const x = 10;
     const y = 10;
-    const width = GameField.WIDTH_CANVAS - 2 * GameField.WIDTH_BORDER_GAMES_FIELD;
-    const height = GameField.HEIGHT_CANVAS - 2 * GameField.WIDTH_BORDER_GAMES_FIELD;
+    const width = GameField.WIDTH_CANVAS / 3 - 2 * GameField.WIDTH_BORDER_GAMES_FIELD;
+    const height = GameField.HEIGHT_CANVAS / 3 - 2 * GameField.WIDTH_BORDER_GAMES_FIELD;
     context.clearRect(x, y, width, height);
     context.closePath();
   }

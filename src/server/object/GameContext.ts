@@ -1,33 +1,35 @@
-import {Block} from "./Block";
-import {BlockMap} from "../processes/CreateMap";
+import * as Map from "../processes/CreateMap";
 
 export class GameContext {
   public players;
   public bullets;
   public blocks;
+  public marginBlocks;
   public static INITIAL_COORDINATES: {x: number, y: number}[] = [
-    {x: 100, y: 100},
-    {x: 1400, y: 100},
-    {x: 700, y: 250},
-    {x: 300, y: 200},
-    {x: 1250, y: 200},
-    {x: 100, y: 500},
-    {x: 1400, y: 450},
-    {x: 950, y: 500},
-    {x: 700, y: 450},
-    {x: 700, y: 100},
+    {x: 185, y: 1275},
+    {x: 1530, y: 990},
+    {x: 735, y: 2560},
+    {x: 2850, y: 1710},
+    {x: 4200, y: 2500},
+    {x: 4300, y: 1100},
+    {x: 1310, y: 520},
+    {x: 2450, y: 1220},
+    {x: 3280, y: 370},
+    {x: 4300, y: 240},
   ];
 
   constructor() {
     this.players = {};
     this.bullets = [];
-    this.blocks = BlockMap;
+    this.blocks = Map.BlockMap;
+    this.marginBlocks = Map.MarginGameField;
   }
 
   serialization(): object {
     let players = [];
     let bullets = [];
     let blocks = [];
+    let marginField = [];
 
     for (const item of Object.keys(this.players)) {
       const player = this.players[item];
@@ -42,10 +44,15 @@ export class GameContext {
       blocks.push(block.serialization());
     }
 
+    for (const block of this.marginBlocks) {
+      marginField.push(block.serialization());
+    }
+
     return {
       players: players,
       bullets: bullets,
       blocks: blocks,
+      marginField: marginField,
     }
   }
 }

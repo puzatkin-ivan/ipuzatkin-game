@@ -14,7 +14,7 @@ export namespace GameServer {
       let playersForDraw = {};
       let playersForTable = [];
       let bullets = [];
-      gameLoop(gameContext, deltaTime, playersForDraw, playersForTable, bullets);
+      gameLoop(socketServer, gameContext, deltaTime, playersForDraw, playersForTable, bullets);
       const messageUpdate = {
         playersForDraw: playersForDraw,
         playersForTable: playersForTable,
@@ -31,25 +31,22 @@ export namespace GameServer {
 
     let countShooter = 0;
     socketServer.on('connection', (client: SocketIO.Socket) => {
-      console.log('connect');
       countShooter += 1;
       const id = client.id;
       const shooterId = id.toString();
-      const numberPlace = countShooter % 1;
-      const x = 500;//GameContext.INITIAL_COORDINATES[numberPlace].x;
-      const y = 600; //GameContext.INITIAL_COORDINATES[numberPlace].y;
+      const numberPlace = countShooter % 10;
+      const x = GameContext.INITIAL_COORDINATES[numberPlace].x;
+      const y = GameContext.INITIAL_COORDINATES[numberPlace].y;
 
       gameContext.players[shooterId] = new Shooter(x, y, shooterId);
 
       client.on("disconnect", () => {
         delete gameContext.players[shooterId];
-        console.log("disconnect");
       });
 
       client.on("nickname", (data: any) => {
         gameContext.players[shooterId].nickname = data;
         client.emit("new_player", JSON.stringify(gameContext.serialization()));
-        console.log(data);
       });
 
       client.on("keyMap", (data: any) => {

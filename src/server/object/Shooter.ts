@@ -147,7 +147,7 @@ export class Shooter {
     }
   }
 
-  fire(bullets: any) {
+  fire(socketServer: SocketIO.Server, bullets: any) {
     if (this.isShooting) {
       const FIRE_DELAY = Parameters.FIRE_DELAY;
       const currentTimeStamp = Date.now();
@@ -155,6 +155,7 @@ export class Shooter {
       if (deltaTime > FIRE_DELAY) {
         this._lastFireTimeStamp = currentTimeStamp;
         bullets.push(new Bullet(this.x, this.y, this.direction, this.playerId));
+        socketServer.sockets.sockets[this.playerId].emit('fire');
       }
     }
   }

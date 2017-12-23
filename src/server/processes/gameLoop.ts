@@ -2,10 +2,10 @@ import {GameContext} from "../object/GameContext";
 import {sortTable} from "./sortTable";
 import {updateParametersPlayer} from "./updateParametersPlayer";
 
-export function gameLoop(gameContext: GameContext, deltaTime: number, playersForDraw: object, playersForTable: any, bullets: any) {
+export function gameLoop(socketServer: SocketIO.Server, gameContext: GameContext, deltaTime: number, playersForDraw: object, playersForTable: any, bullets: any) {
   for (const playerId of Object.keys(gameContext.players)) {
     const player = gameContext.players[playerId];
-    updateParametersPlayer(gameContext.bullets, gameContext.blocks, player, deltaTime);
+    updateParametersPlayer(socketServer, gameContext.bullets, gameContext.blocks, player, deltaTime);
     playersForDraw[playerId] = player.serializationForDraw();
     playersForTable.push(player.serializationForTable());
   }

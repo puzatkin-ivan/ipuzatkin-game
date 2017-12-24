@@ -5,16 +5,16 @@ export class GameContext {
   public bullets;
   public blocks;
   public static INITIAL_COORDINATES: {x: number, y: number}[] = [
-    {x: 185, y: 1275},
-    {x: 1530, y: 990},
-    {x: 735, y: 2560},
-    {x: 2850, y: 1710},
-    {x: 4200, y: 2500},
-    {x: 4300, y: 1100},
-    {x: 1310, y: 520},
-    {x: 2450, y: 1220},
-    {x: 3280, y: 370},
-    {x: 4300, y: 240},
+    {x: 436, y: 903},
+    {x: 330, y: 260},
+    {x: 1690, y: 120},
+    {x: 2230, y: 420},
+    {x: 4220, y: 320},
+    {x: 4053, y: 923},
+    {x: 4200, y: 1511},
+    {x: 3053, y: 1645},
+    {x: 1046, y: 1437},
+    {x: 258, y: 1579},
   ];
 
   constructor() {

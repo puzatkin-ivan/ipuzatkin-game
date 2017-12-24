@@ -10,7 +10,8 @@
     "build:client:bundle": "browserify ./bin/build/main_client.js -o ./bin/client/build/bundle.js",
     "build:client": "npm run-script build:client:tsc && npm run-script build:client:bundle",
     "build": "npm run-script build:server && npm run-script build:client",
-    "start:server": "cd bin/src && node main_server.js"
+    "start:server": "cd bin/src && node main_server.js",
+    "debug:server": "npm run-script build:server && npm run-script start:server"
   },
   "repository": {
     "type": "git",

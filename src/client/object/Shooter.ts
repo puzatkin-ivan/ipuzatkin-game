@@ -46,13 +46,13 @@ export class Shooter {
   drawGun(context: CanvasRenderingContext2D) {
     context.fillStyle = "#000";
     if (this._direction === "direction_right") {
-      context.fillRect(this._x + this._width, this._y + this._height / 3.5, 5, 10);
+      context.fillRect(this._x + this._width, this._y + this._height / 3.5, 5, 16);
     } else if (this._direction === "direction_left") {
-      context.fillRect(this._x - 5, this._y + this._height / 3.5, 5, 10);
+      context.fillRect(this._x - 5, this._y + this._height / 3.5, 5, 16);
     } else  if (this._direction === "direction_up") {
-      context.fillRect(this._x + this._width / 3.5, this._y - 5, 10, 5);
+      context.fillRect(this._x + this._width / 3.5, this._y - 5, 16, 5);
     } else if (this._direction === "direction_down") {
-      context.fillRect(this._x + this._width / 3.5, this._y + this._height, 10, 5);
+      context.fillRect(this._x + this._width / 3.5, this._y + this._height, 16, 5);
     }
   }
 }

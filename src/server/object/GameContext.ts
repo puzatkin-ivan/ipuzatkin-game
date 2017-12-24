@@ -4,7 +4,6 @@ export class GameContext {
   public players;
   public bullets;
   public blocks;
-  public marginBlocks;
   public static INITIAL_COORDINATES: {x: number, y: number}[] = [
     {x: 185, y: 1275},
     {x: 1530, y: 990},
@@ -22,14 +21,12 @@ export class GameContext {
     this.players = {};
     this.bullets = [];
     this.blocks = Map.BlockMap;
-    this.marginBlocks = Map.MarginGameField;
   }
 
   serialization(): object {
     let players = [];
     let bullets = [];
     let blocks = [];
-    let marginField = [];
 
     for (const item of Object.keys(this.players)) {
       const player = this.players[item];
@@ -44,15 +41,10 @@ export class GameContext {
       blocks.push(block.serialization());
     }
 
-    for (const block of this.marginBlocks) {
-      marginField.push(block.serialization());
-    }
-
     return {
       players: players,
       bullets: bullets,
       blocks: blocks,
-      marginField: marginField,
     }
   }
 }

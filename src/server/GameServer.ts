@@ -37,13 +37,13 @@ export namespace GameServer {
       const x = GameContext.INITIAL_COORDINATES[numberPlace].x;
       const y = GameContext.INITIAL_COORDINATES[numberPlace].y;
 
-      gameContext.players[shooterId] = new Shooter(x, y, shooterId);
 
       client.on("disconnect", () => {
         delete gameContext.players[shooterId];
       });
 
       client.on("nickname", (data: any) => {
+        gameContext.players[shooterId] = new Shooter(x, y, shooterId);
         gameContext.players[shooterId].nickname = data;
         client.emit("new_player", JSON.stringify(gameContext.serialization()));
       });

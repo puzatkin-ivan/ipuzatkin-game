@@ -1,7 +1,6 @@
 import {Shooter} from "./object/Shooter";
 import {GameContext} from "./object/GameContext";
 import {gameLoop} from "./processes/gameLoop";
-import {GameField} from "../client/object/GameField";
 
 export namespace GameServer {
   function startGameServer(socketServer: SocketIO.Server, gameContext: GameContext) {

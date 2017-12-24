@@ -51,7 +51,6 @@ export namespace GameClient {
 
     socket.on("new_player", (messageEvent: any) => {
       const message = JSON.parse(messageEvent);
-      console.log(message);
       gameContext.blocks = message.blocks;
       gameContext.players = message.players;
       gameContext.bullets = message.bullets;
